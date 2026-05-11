@@ -47,51 +47,43 @@
         </div>
         <div class="card-body">
           <div style="height:180px;position:relative"><canvas id="alloc-chart"></canvas></div>
+          
+          
+          {{--
+            Asset allocation ROWS (list under the donut chart)
+
+            COMPONENT FILE: resources/views/components/asset-allocation-row.blade.php
+            USAGE TAG:      <x-asset-allocation-row :label="..." :percent="N" :color="'#hex'" />
+            Rows for THIS PAGE: edit $assetAllocationRows below (one array = one loop).
+
+            CONNECTED TO:
+            - public/assets/js/charts.js → initAllocChart() labels/data/colors for
+              the donut; keep in sync when you change labels, percents, or colors.
+            - public/assets/css/app.css → .alloc-* and .progress-* classes.
+
+            ANOTHER ANONYMOUS COMPONENT: new file under resources/views/components/
+            CLASS-BASED (optional): php artisan make:component AssetAllocationRow --no-interaction
+          --}}
+
+
+          @php
+            $assetAllocationRows = [
+                ['label' => 'US Equities', 'percent' => 42, 'color' => '#4f8cff'],
+                ['label' => 'Bonds', 'percent' => 26, 'color' => '#00d4aa'],
+                ['label' => 'Intl Markets', 'percent' => 19, 'color' => '#7b5ea7'],
+                ['label' => 'Commodities', 'percent' => 13, 'color' => '#f59e0b'],
+            ];
+          @endphp
           <div style="margin-top:14px">
-            <div class="alloc-item">
-              <div class="alloc-dot" style="background:#4f8cff"></div>
-              <div class="alloc-name">US Equities</div>
-              <div class="alloc-pct">42%</div>
-              <div class="alloc-bar-wrap">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width:42%;background:#4f8cff"></div>
-                </div>
-              </div>
-            </div>
-            <div class="alloc-item">
-              <div class="alloc-dot" style="background:#00d4aa"></div>
-              <div class="alloc-name">Bonds</div>
-              <div class="alloc-pct">26%</div>
-              <div class="alloc-bar-wrap">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width:26%;background:#00d4aa"></div>
-                </div>
-              </div>
-            </div>
-            <div class="alloc-item">
-              <div class="alloc-dot" style="background:#7b5ea7"></div>
-              <div class="alloc-name">Intl Markets</div>
-              <div class="alloc-pct">19%</div>
-              <div class="alloc-bar-wrap">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width:19%;background:#7b5ea7"></div>
-                </div>
-              </div>
-            </div>
-            <div class="alloc-item">
-              <div class="alloc-dot" style="background:#f59e0b"></div>
-              <div class="alloc-name">Commodities</div>
-              <div class="alloc-pct">13%</div>
-              <div class="alloc-bar-wrap">
-                <div class="progress-bar">
-                  <div class="progress-fill" style="width:13%;background:#f59e0b"></div>
-                </div>
-              </div>
-            </div>
+            @foreach ($assetAllocationRows as $row)
+              <x-asset-allocation-row :label="$row['label']" :percent="$row['percent']" :color="$row['color']" />
+            @endforeach
           </div>
         </div>
       </div>
     </div>
+
+
 
     <!-- Transactions Table -->
     <div class="card">

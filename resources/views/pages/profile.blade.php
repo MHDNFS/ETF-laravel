@@ -19,13 +19,33 @@
             <button class="btn btn-blue btn-sm" onclick="showModal('edit-profile-modal')"><i class="fa-solid fa-pen"></i> Edit Profile</button>
           </div>
         </div>
+        
+        
+        
+        
+        {{-- Profile stats row: data here → <x-profile-stat /> (see components/profile-stat.blade.php) --}}
+        
+        
+        @php
+          $profileStats = [
+              ['value' => '$48.3M', 'label' => 'Assets Managed'],
+              ['value' => '12', 'label' => 'Active Funds'],
+              ['value' => '+12.7%', 'label' => 'Avg Return (YTD)'],
+              ['value' => '4.8★', 'label' => 'Performance Score'],
+          ];
+        @endphp
         <div class="profile-stats-row">
-          <div class="profile-stat"><div class="val">$48.3M</div><div class="lbl">Assets Managed</div></div>
-          <div class="profile-stat"><div class="val">12</div><div class="lbl">Active Funds</div></div>
-          <div class="profile-stat"><div class="val">+12.7%</div><div class="lbl">Avg Return (YTD)</div></div>
-          <div class="profile-stat"><div class="val">4.8★</div><div class="lbl">Performance Score</div></div>
+          @foreach ($profileStats as $stat)
+            <x-profile-stat :value="$stat['value']" :label="$stat['label']" />
+          @endforeach
         </div>
       </div>
+
+
+
+
+
+
       <div class="grid-2">
         <div class="card">
           <div class="card-header"><span class="card-title">Account Details</span></div>
@@ -42,22 +62,46 @@
         <div class="card">
           <div class="card-header"><span class="card-title">Recent Activity</span></div>
           <div class="card-body">
-            <div class="notif-item">
-              <div class="notif-icon" style="background:rgba(16,185,129,0.12);color:var(--success)"><i class="fa-solid fa-check"></i></div>
-              <div><div class="notif-text">Settled <strong>VOO × 120</strong> — ETF trade</div><div class="notif-time">2 May 2026 · $61,488</div></div>
-            </div>
-            <div class="notif-item">
-              <div class="notif-icon" style="background:rgba(79,140,255,0.12);color:var(--accent)"><i class="fa-solid fa-calculator"></i></div>
-              <div><div class="notif-text">ETF Calculation — QQQ scenario</div><div class="notif-time">1 May 2026</div></div>
-            </div>
-            <div class="notif-item">
-              <div class="notif-icon" style="background:rgba(245,158,11,0.12);color:var(--accent4)"><i class="fa-solid fa-file-export"></i></div>
-              <div><div class="notif-text">Exported <strong>Q1 2026</strong> PDF Report</div><div class="notif-time">1 May 2026</div></div>
-            </div>
+            {{-- Recent activity rows → <x-profile-activity-item /> (components/profile-activity-item.blade.php) --}}
+            
+            
+            
+            @php
+              $recentActivity = [
+                  [
+                      'icon' => 'fa-check',
+                      'iconStyle' => 'background:rgba(16,185,129,0.12);color:var(--success)',
+                      'time' => '2 May 2026 · $61,488',
+                      'text' => 'Settled <strong>VOO x 120</strong> — ETF trade',
+                  ],
+                  [
+                      'icon' => 'fa-calculator',
+                      'iconStyle' => 'background:rgba(79,140,255,0.12);color:var(--accent)',
+                      'time' => '1 May 2026',
+                      'text' => 'ETF Calculation — QQQ scenario',
+                  ],
+                  [
+                      'icon' => 'fa-file-export',
+                      'iconStyle' => 'background:rgba(245,158,11,0.12);color:var(--accent4)',
+                      'time' => '1 May 2026',
+                      'text' => 'Exported <strong>Q1 2026</strong> PDF Report',
+                  ],
+              ];
+            @endphp
+            @foreach ($recentActivity as $activity)
+              <x-profile-activity-item
+                :icon="$activity['icon']"
+                :icon-style="$activity['iconStyle']"
+                :time="$activity['time']"
+                :text="$activity['text']"
+              />
+            @endforeach
           </div>
         </div>
       </div>
     </div>
+
+    
     {{-- <footer class="footer">
       <div>© 2026 QuantEdge Capital · ETF &amp; PTF Dashboard v3.2.1</div>
       <div class="footer-links">
