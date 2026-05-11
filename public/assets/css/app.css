@@ -385,6 +385,34 @@ textarea.form-control { min-height: 90px; resize: vertical; }
 .btn-success { background: var(--success); color: #fff; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 
+/* Icon-only table actions (DataTables, etc.): balanced padding inside pill outline */
+.btn-icon-pill {
+    justify-content: center;
+    gap: 0;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 9px 12px;
+    border-radius: 9999px;
+    line-height: 1;
+}
+.btn-icon-pill i {
+    font-size: 14px;
+}
+.btn-icon-pill.btn-outline--danger {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+.btn-icon-pill.btn-outline--danger:hover {
+    color: #f87171;
+    border-color: #f87171;
+    background: rgba(239, 68, 68, 0.08);
+}
+.dt-actions-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 /* ─── PROGRESS ────────────────────────────────────────────── */
 .progress-bar  { background: var(--bg3); border-radius: 4px; height: 6px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }

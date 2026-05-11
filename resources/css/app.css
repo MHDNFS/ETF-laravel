@@ -1,11 +1,95 @@
+/* Loads Tailwind CSS into the project. */
 @import 'tailwindcss';
+/* Import DataTables styling */
+@import 'datatables.net-dt/css/dataTables.dataTables.css';
+@import 'datatables.net-buttons-dt/css/buttons.dataTables.css';
 
+/* Scan Laravel pagination Blade files for Tailwind classes. */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+/* Scan Laravel cached view files for Tailwind classes. */
 @source '../../storage/framework/views/*.php';
+
+/* Scan all Blade files inside resources and subfolders. */
 @source '../**/*.blade.php';
+/* Scan all JavaScript files inside resources and subfolders. */
 @source '../**/*.js';
 
+/* This lets you define custom spacing, colors, fonts, breakpoints, etc. */
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DATATABLES CUSTOM LAYOUT OVERRIDES
+   WHY: The default DataTables CSS stacks info and pagination vertically and 
+   left-aligns them. We override this so:
+     - "Showing 1 to 10 of 10 customers" appears on the BOTTOM LEFT
+     - The page numbers (1, 2, 3...) appear on the BOTTOM RIGHT
+   This matches modern dashboard UI patterns (like the screenshot reference).
+───────────────────────────────────────────────────────────────────────────── */
+
+/* WHY: This is the custom wrapper div we created in app.js dom: 'rt<"dt-custom-footer"ip>'
+   flex = puts children (info + pagination) side by side in one row
+   justify-content: space-between = pushes info to far LEFT and pagination to far RIGHT
+   align-items: center = vertically centers both items in the same row */
+.dt-custom-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border2, rgba(255,255,255,0.08));
+    margin-top: 4px;
+}
+
+/* WHY: Style the "Showing X to Y of Z" info text to match the dark theme */
+.dt-custom-footer .dataTables_info {
+    color: var(--text3, #8b95a1);
+    font-size: 13px;
+}
+
+/* WHY: The pagination container — we remove the default float that DataTables applies */
+.dt-custom-footer .dataTables_paginate {
+    float: none;  /* Remove DataTables default float:right (we handle alignment with flexbox now) */
+}
+
+/* WHY: Style each individual page number button to match the dark theme */
+.dataTables_paginate .paginate_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    margin: 0 2px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text2, #b0bac5) !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    transition: all 0.15s ease;
+}
+
+/* WHY: Highlight the CURRENTLY active page number */
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button.current:hover {
+    background: var(--accent, #4f8cff) !important;
+    color: #fff !important;
+    border-color: var(--accent, #4f8cff) !important;
+}
+
+/* WHY: Hover state for non-active page buttons */
+.dataTables_paginate .paginate_button:hover:not(.current) {
+    background: var(--bg3, rgba(255,255,255,0.08)) !important;
+    color: #fff !important;
+    border-color: var(--border2, rgba(255,255,255,0.12)) !important;
+}
+
+/* WHY: Dim the Previous/Next buttons when disabled (on first or last page) */
+.dataTables_paginate .paginate_button.disabled,
+.dataTables_paginate .paginate_button.disabled:hover {
+    opacity: 0.3;
+    cursor: not-allowed;
 }

@@ -19,7 +19,7 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     // use HasFactory, Notifiable;
 
-//why i add HasApiTokens here because i want to use API token management in my application,
+    //why i add HasApiTokens here because i want to use API token management in my application,
 // and this trait provides the necessary methods and properties to manage API tokens for the user model.
 // It allows me to create, revoke, and manage API tokens for authentication purposes when building APIs with Laravel Sanctum.
     use HasApiTokens, HasFactory, Notifiable;

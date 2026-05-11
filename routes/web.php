@@ -37,6 +37,12 @@ Route::get('/etf-funds', function () {
     ]);
 });
 
+Route::get('/customer-management', function () {
+    return view('pages.customer-management', [
+        'activeSidebar' => 'customer-management',
+    ]);
+});
+
 
 
 Route::get('/ptf-calculator', function () {
