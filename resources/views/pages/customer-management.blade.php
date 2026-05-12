@@ -54,24 +54,9 @@
             </div>
 
             <div class="table-wrap">
-                <!-- This table will be converted by DataTables -->
+                {{-- DataTables builds <thead> from columns[].title — avoid a static <thead> row (prevents doubled / misaligned sort UI) --}}
                 <table id="customerTable" style="width: 100%;">
-                    <thead>
-                        <tr>
-                            <th class="sort">ID</th>
-                            <th class="sort">Name</th>
-                            <th class="sort">Email</th>
-                            <th class="sort">Phone</th>
-                            <th class="sort">Address</th>
-                            <th class="sort">Outstanding Balance</th>
-                            <th class="sort">Vehicles</th>
-                            <th class="sort">Last Transaction</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be loaded here via AJAX -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>

@@ -32,54 +32,7 @@ var MODALS_HTML = `
   </div>
 </div>
 
-<!-- Add Trade Modal -->
-<div class="modal-overlay" id="add-trade-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title"><i class="fa-solid fa-plus" style="color:var(--accent);margin-right:8px"></i>New Trade</span>
-      <button class="modal-close" onclick="closeModal('add-trade-modal')"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Fund Type</label>
-        <div class="select2-custom"><select><option>ETF</option><option>PTF</option></select></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Select Fund</label>
-        <div class="select2-custom"><select>
-          <option>Vanguard S&P 500 ETF (VOO)</option>
-          <option>iShares MSCI Emerging (IEMG)</option>
-          <option>Custom Growth Fund (CGF-A)</option>
-          <option>SPDR Gold ETF (GLD)</option>
-        </select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Action</label>
-          <div class="select2-custom"><select><option>Buy</option><option>Sell</option></select></div>
-        </div>
-        <div class="form-group"><label class="form-label">Units</label>
-          <input type="number" class="form-control" placeholder="100">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Price ($)</label>
-          <input type="number" class="form-control" placeholder="512.40">
-        </div>
-        <div class="form-group"><label class="form-label">Trade Date</label>
-          <input type="date" class="form-control" value="2026-05-03">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <textarea class="form-control" placeholder="Optional trade notes…"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('add-trade-modal')">Cancel</button>
-      <button class="btn btn-blue" onclick="closeModal('add-trade-modal');showToast('success','Trade Submitted','New trade queued for settlement.')">Submit Trade</button>
-    </div>
-  </div>
-</div>
+<!-- Add Trade modal: rendered from Blade (resources/views/components/modals/add-trade-modal.blade.php) -->
 
 <!-- Trade Detail Modal -->
 <div class="modal-overlay" id="trade-detail-modal">
@@ -193,4 +146,91 @@ document.addEventListener('DOMContentLoaded', function () {
   const wrap = document.createElement('div');
   wrap.innerHTML = MODALS_HTML;
   document.body.appendChild(wrap);
+
+  function fmtAddTradeTotal(n) {
+    var s = String(Math.round(n));
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function updateAddTradeTotalPreview() {
+    var uEl = document.getElementById('add-trade-units');
+    var pEl = document.getElementById('add-trade-price');
+    var out = document.getElementById('add-trade-total');
+    if (!uEl || !pEl || !out) return;
+    var u = parseFloat(uEl.value);
+    var p = parseFloat(pEl.value);
+    if (!isFinite(u) || !isFinite(p) || u <= 0 || p < 0) {
+      out.value = '';
+      return;
+    }
+    out.value = '$' + fmtAddTradeTotal(u * p);
+  }
+
+  function syncAddTradeTickerFromFund() {
+    var sel = document.getElementById('add-trade-fund-select');
+    var tick = document.getElementById('add-trade-ticker');
+    if (!sel || !tick) return;
+    var opt = sel.options[sel.selectedIndex];
+    var t = opt ? opt.getAttribute('data-ticker') : '';
+    tick.value = t || '';
+  }
+
+  var addTradeModal = document.getElementById('add-trade-modal');
+  if (addTradeModal) {
+    addTradeModal.addEventListener('input', function (e) {
+      if (e.target && (e.target.id === 'add-trade-units' || e.target.id === 'add-trade-price')) {
+        updateAddTradeTotalPreview();
+      }
+    });
+    addTradeModal.addEventListener('change', function (e) {
+      if (e.target && e.target.id === 'add-trade-fund-select') {
+        syncAddTradeTickerFromFund();
+      }
+    });
+    syncAddTradeTickerFromFund();
+    updateAddTradeTotalPreview();
+  }
+});
+
+/** Fund List table: "Add" opens add-etf-fund-modal with fields matching table columns (not add-trade-modal). */
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.js-open-add-etf-fund');
+  if (!btn) {
+    return;
+  }
+  e.preventDefault();
+  var row = {};
+  var raw = btn.getAttribute('data-fund');
+  if (raw) {
+    try {
+      row = JSON.parse(decodeURIComponent(raw));
+    } catch (err) {
+      row = {};
+    }
+  }
+  function setVal(id, v) {
+    var el = document.getElementById(id);
+    if (!el) {
+      return;
+    }
+    el.value = v != null && v !== '' ? String(v) : '';
+  }
+  setVal('add-etf-fund-name', row.name);
+  setVal('add-etf-fund-ticker', row.ticker);
+  setVal('add-etf-fund-nav', row.nav);
+  setVal('add-etf-fund-ret1', row.ret1);
+  setVal('add-etf-fund-cagr', row.cagr);
+  setVal('add-etf-fund-aum', row.aum);
+  setVal('add-etf-fund-ter', row.ter);
+  var starsEl = document.getElementById('add-etf-fund-stars');
+  if (starsEl) {
+    var s = row.stars != null ? String(row.stars) : '4';
+    if (!['1', '2', '3', '4', '5'].includes(s)) {
+      s = '4';
+    }
+    starsEl.value = s;
+  }
+  if (typeof showModal === 'function') {
+    showModal('add-etf-fund-modal');
+  }
 });

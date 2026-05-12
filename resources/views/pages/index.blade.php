@@ -49,7 +49,7 @@
           <div style="height:180px;position:relative"><canvas id="alloc-chart"></canvas></div>
           
           
-          {{--
+          <!-- {{--
             Asset allocation ROWS (list under the donut chart)
 
             COMPONENT FILE: resources/views/components/asset-allocation-row.blade.php
@@ -63,7 +63,7 @@
 
             ANOTHER ANONYMOUS COMPONENT: new file under resources/views/components/
             CLASS-BASED (optional): php artisan make:component AssetAllocationRow --no-interaction
-          --}}
+          --}} -->
 
 
           @php
@@ -93,98 +93,15 @@
           Trade</button>
       </div>
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th class="sort">Date <i class="fa-solid fa-sort"></i></th>
-              <th class="sort">Fund / Ticker</th>
-              <th>Type</th>
-              <th class="sort">Units</th>
-              <th class="sort">Price</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="td-muted td-mono">2026-05-02</td>
-              <td>
-                <div class="fund-name">Vanguard S&amp;P 500</div>
-                <div class="fund-ticker">VOO</div>
-              </td>
-              <td><span class="tag tag-etf">ETF</span></td>
-              <td class="td-mono">120</td>
-              <td class="td-mono">$512.40</td>
-              <td class="td-mono" style="font-weight:500">$61,488</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:7px"></i> Settled</span>
-              </td>
-              <td><button class="btn btn-outline btn-sm" onclick="showModal('trade-detail-modal')">View</button></td>
-            </tr>
-            <tr>
-              <td class="td-muted td-mono">2026-05-01</td>
-              <td>
-                <div class="fund-name">iShares Core MSCI</div>
-                <div class="fund-ticker">IEMG</div>
-              </td>
-              <td><span class="tag tag-etf">ETF</span></td>
-              <td class="td-mono">85</td>
-              <td class="td-mono">$54.22</td>
-              <td class="td-mono" style="font-weight:500">$4,609</td>
-              <td><span class="badge badge-amber"><i class="fa-solid fa-circle" style="font-size:7px"></i> Pending</span>
-              </td>
-              <td><button class="btn btn-outline btn-sm" onclick="showModal('trade-detail-modal')">View</button></td>
-            </tr>
-            <tr>
-              <td class="td-muted td-mono">2026-04-30</td>
-              <td>
-                <div class="fund-name">Custom Growth Fund</div>
-                <div class="fund-ticker">CGF-A</div>
-              </td>
-              <td><span class="tag tag-ptf">PTF</span></td>
-              <td class="td-mono">200</td>
-              <td class="td-mono">$88.75</td>
-              <td class="td-mono" style="font-weight:500">$17,750</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:7px"></i> Settled</span>
-              </td>
-              <td><button class="btn btn-outline btn-sm" onclick="showModal('trade-detail-modal')">View</button></td>
-            </tr>
-            <tr>
-              <td class="td-muted td-mono">2026-04-29</td>
-              <td>
-                <div class="fund-name">SPDR Gold ETF</div>
-                <div class="fund-ticker">GLD</div>
-              </td>
-              <td><span class="tag tag-etf">ETF</span></td>
-              <td class="td-mono">40</td>
-              <td class="td-mono">$224.10</td>
-              <td class="td-mono" style="font-weight:500">$8,964</td>
-              <td><span class="badge badge-red"><i class="fa-solid fa-circle" style="font-size:7px"></i> Cancelled</span>
-              </td>
-              <td><button class="btn btn-outline btn-sm" onclick="showModal('trade-detail-modal')">View</button></td>
-            </tr>
-            <tr>
-              <td class="td-muted td-mono">2026-04-28</td>
-              <td>
-                <div class="fund-name">Tactical Bond PTF</div>
-                <div class="fund-ticker">TBP-2</div>
-              </td>
-              <td><span class="tag tag-ptf">PTF</span></td>
-              <td class="td-mono">500</td>
-              <td class="td-mono">$102.30</td>
-              <td class="td-mono" style="font-weight:500">$51,150</td>
-              <td><span class="badge badge-green"><i class="fa-solid fa-circle" style="font-size:7px"></i> Settled</span>
-              </td>
-              <td><button class="btn btn-outline btn-sm" onclick="showModal('trade-detail-modal')">View</button></td>
-            </tr>
-          </tbody>
+        {{-- DataTables builds <thead> from columns[].title (see resources/js/app.js). A static <thead> here
+             doubled markup with DataTables’ own sort controls and caused a “ghost” column between Date and Fund. --}}
+        <table id="recentTransactionsTable" style="width: 100%;">
+          <tbody></tbody>
         </table>
       </div>
     </div>
 
   </div><!-- /content -->
-
-
 
 
 @endsection

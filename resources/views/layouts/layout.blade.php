@@ -15,6 +15,7 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
+
 <body>
   <div id="app">
 
@@ -334,6 +335,13 @@
     </div><!-- /main -->
   </div><!-- /app -->
 
+
+  <!-- this is the add trade modal -->
+  <!-- it is a custom component that we defined in components/modals/add-trade-modal.blade.php -->
+  <!-- we use the x-modals.add-trade-modal component to display the modal -->
+  <x-modals.add-trade-modal />
+  <x-modals.add-etf-fund-modal />
+
   <!-- Scripts -->
   <!-- why is this here -->
   <!-- for the tables pagination search export etc -->
@@ -350,8 +358,8 @@
   <script src="{{ assets('assets/js/calculators.js') }}"></script> --}}
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="assets/js/calculators.js"></script>
-  <script>document.addEventListener('DOMContentLoaded', buildFundTable);</script>
+  <script src="{{ asset('assets/js/calculators.js') }}"></script>
+  {{-- Fund list table: DataTables in Vite resources/js/app.js (initEtfFundsDataTable); buildFundTable no longer used --}}
 
 
   {{--

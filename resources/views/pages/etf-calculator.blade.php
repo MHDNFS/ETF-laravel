@@ -13,41 +13,11 @@
         <div class="card">
           <div class="card-header"><span class="card-title">ETF Parameters</span></div>
           <div class="card-body">
-            <div class="form-group">
-              <label class="form-label">Fund Selection</label>
-              <div class="select2-custom"><select id="etf-fund-select">
-                <option>Vanguard S&amp;P 500 ETF (VOO)</option>
-                <option>iShares MSCI Emerging (IEMG)</option>
-                <option>SPDR Gold Shares (GLD)</option>
-                <option>Invesco QQQ Trust (QQQ)</option>
-                <option>iShares Core US Aggregate (AGG)</option>
-              </select></div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Investment Amount ($)</label>
-                <div class="input-icon-wrap"><i class="fa-solid fa-dollar-sign icon"></i>
-                <input type="number" class="form-control" id="etf-amount" value="50000" style="padding-left:30px"></div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Number of Units</label>
-                <input type="number" class="form-control" id="etf-units" value="100">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group"><label class="form-label">Current NAV ($)</label><input type="number" class="form-control" id="etf-nav" value="512.40"></div>
-              <div class="form-group"><label class="form-label">Market Price ($)</label><input type="number" class="form-control" id="etf-price" value="513.10"></div>
-            </div>
-            <div class="form-row three">
-              <div class="form-group"><label class="form-label">TER (%)</label><input type="number" class="form-control" id="etf-ter" value="0.03" step="0.01"></div>
-              <div class="form-group"><label class="form-label">Benchmark Return (%)</label><input type="number" class="form-control" id="etf-bench" value="12.5"></div>
-              <div class="form-group"><label class="form-label">Holding Period (yrs)</label><input type="number" class="form-control" id="etf-years" value="5"></div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Dividend Reinvestment</label>
-              <div class="select2-custom"><select><option>Reinvest Dividends (DRIP)</option><option>Cash Payout</option><option>No Dividends</option></select></div>
-            </div>
-            <button class="btn btn-blue" style="width:100%" onclick="calcETF()"><i class="fa-solid fa-calculator"></i> Calculate ETF Metrics</button>
+          
+          
+          <!-- x-etf-parameters-form is a custom component that we defined in components/etf-parameters-form.blade.php -->
+          <!-- we use the x-etf-parameters-form component to display the form -->
+          <x-etf-parameters-form />
           </div>
         </div>
         <div class="card">

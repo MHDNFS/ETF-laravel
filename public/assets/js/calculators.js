@@ -5,8 +5,10 @@
 
 /* ─── ETF CALCULATOR ──────────────────────────────────────── */
 function calcETF() {
-  const amount = parseFloat(document.getElementById('etf-amount').value) || 50000;
   const nav    = parseFloat(document.getElementById('etf-nav').value)    || 512.40;
+  const units  = parseFloat(document.getElementById('etf-units').value)  || 100;
+  const amountInput = parseFloat(document.getElementById('etf-amount').value);
+  const amount = Number.isFinite(amountInput) ? amountInput : (units * nav);
   const price  = parseFloat(document.getElementById('etf-price').value)  || 513.10;
   const ter    = parseFloat(document.getElementById('etf-ter').value)    || 0.03;
   const bench  = parseFloat(document.getElementById('etf-bench').value)  || 12.5;
@@ -107,7 +109,9 @@ function buildFundTable() {
       '<td class="td-mono">$' + f.aum + '</td>' +
       '<td class="td-mono">' + f.ter + '%</td>' +
       '<td><span style="color:#f59e0b">' + '★'.repeat(f.stars) + '</span><span style="color:var(--text3)">' + '★'.repeat(5 - f.stars) + '</span></td>' +
-      '<td><button class="btn btn-blue btn-sm" onclick="showModal(\'add-trade-modal\')">Add</button></td>' +
+      '<td><button type="button" class="btn btn-blue btn-sm js-open-add-etf-fund" data-fund="' +
+      encodeURIComponent(JSON.stringify({name:f.name,ticker:f.ticker,nav:f.nav,ret1:f.ret1,cagr:f.cagr,aum:f.aum,ter:f.ter,stars:f.stars})) +
+      '">Add</button></td>' +
     '</tr>';
   }).join('');
 }

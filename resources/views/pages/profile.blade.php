@@ -23,8 +23,7 @@
         
         
         
-        {{-- Profile stats row: data here → <x-profile-stat /> (see components/profile-stat.blade.php) --}}
-        
+        <!-- {{-- Profile stats row: data here → <x-profile-stat /> (see components/profile-stat.blade.php) --}} -->
         
         @php
           $profileStats = [
@@ -43,20 +42,30 @@
 
 
 
-
-
-
       <div class="grid-2">
         <div class="card">
           <div class="card-header"><span class="card-title">Account Details</span></div>
           <div class="card-body">
-            <div class="metric-row"><span class="metric-lbl">Full Name</span><span class="metric-val">Alex Analyst</span></div>
-            <div class="metric-row"><span class="metric-lbl">Email</span><span class="metric-val">analyst@quantedge.io</span></div>
-            <div class="metric-row"><span class="metric-lbl">Role</span><span class="metric-val">Senior Portfolio Manager</span></div>
-            <div class="metric-row"><span class="metric-lbl">Department</span><span class="metric-val">Investment Strategy</span></div>
-            <div class="metric-row"><span class="metric-lbl">Location</span><span class="metric-val">Kandy, Sri Lanka</span></div>
-            <div class="metric-row"><span class="metric-lbl">Member Since</span><span class="metric-val">Jan 2024</span></div>
-            <div class="metric-row"><span class="metric-lbl">Last Login</span><span class="metric-val">Today, 08:42 AM</span></div>
+
+          
+            @php
+              $accountDetails = [
+                  ['label' => 'Full Name', 'value' => 'Alex Analyst'],
+                  ['label' => 'Email', 'value' => 'analyst@quantedge.io'],
+                  ['label' => 'Role', 'value' => 'Senior Portfolio Manager'],
+                  ['label' => 'Department', 'value' => 'Investment Strategy'],
+                  ['label' => 'Location', 'value' => 'Kandy, Sri Lanka'],
+                  ['label' => 'Member Since', 'value' => 'Jan 2024'],
+                  ['label' => 'Last Login', 'value' => 'Today, 08:42 AM'],
+              ];
+            @endphp
+            @foreach ($accountDetails as $row)
+              <x-profile-detail-row :label="$row['label']" :value="$row['value']" />
+            @endforeach
+
+
+
+
           </div>
         </div>
         <div class="card">
@@ -101,7 +110,7 @@
       </div>
     </div>
 
-    
+
     {{-- <footer class="footer">
       <div>© 2026 QuantEdge Capital · ETF &amp; PTF Dashboard v3.2.1</div>
       <div class="footer-links">
