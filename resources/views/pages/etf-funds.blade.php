@@ -1,11 +1,11 @@
 @extends('layouts.layout')
 @section('title','EPF FUNDS')
+@section('header_title', 'ETF Fund Explorer')
 @section('content')
 
     <div class="content page-animate">
 
-      <div class="page-title">ETF Fund Explorer</div>
-      <div class="page-sub">Browse, filter, and analyze available exchange-traded funds</div>
+      <x-page-header title="ETF Fund Explorer" subtitle="Browse, filter, and analyze available exchange-traded funds" />
       <div class="card">
         <div class="card-body">
           

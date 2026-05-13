@@ -12,7 +12,7 @@
     <div class="sidebar-section">PTF Module</div>
     <a class="nav-item" href="ptf-portfolio.html"><span class="nav-icon"><i class="fa-solid fa-briefcase"></i></span>Portfolio Manager</a>
     <div class="sidebar-section">Reports</div>
-    <a class="nav-item" href="reports.html"><span class="nav-icon"><i class="fa-solid fa-file-chart-column"></i></span>Reports &amp; Export</a>
+    <a class="nav-item" href="reports.html"><span class="nav-icon"><i class="fa-solid fa-file-export"></i></span>{{ 'Reports & Export' }}</a>
     <a class="nav-item" href="settings.html"><span class="nav-icon"><i class="fa-solid fa-gear"></i></span>Settings<span class="nav-badge warn">!</span></a>
     <div class="sidebar-profile">
       <div class="avatar"><span>AA</span><div class="online-dot"></div></div>

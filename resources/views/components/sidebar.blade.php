@@ -1,29 +1,11 @@
 @props([
-    'items' => [],
     'active' => 'dashboard',
 ])
 
 {{--
-  Sidebar component props:
-  - items: an array of links and section labels
-  - active: the key of the currently selected link
+  Sidebar: explicit section headers and <x-sidebar-item> per link.
+  Pass :active from the layout (same keys as route $activeSidebar).
 --}}
-
-@php
-$items = $items ?: [
-    ['key' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'fa-gauge-high', 'href' => '/index'],
-    ['key' => 'profile', 'label' => 'My Profile', 'icon' => 'fa-user-circle', 'href' => '/profile'],
-    ['section' => 'ETF Module'],
-    ['key' => 'etf-calculator', 'label' => 'ETF Calculator', 'icon' => 'fa-calculator', 'href' => '/etf-calculator'],
-    ['key' => 'fund-explorer', 'label' => 'Fund Explorer', 'icon' => 'fa-layer-group', 'href' => '/etf-funds', 'badge' => '12'],
-    ['key' => 'customer-management', 'label' => 'Customer Management', 'icon' => 'fa-users', 'href' => '/customer-management'],
-    ['section' => 'PTF Module'],
-    ['key' => 'ptf-portfolio', 'label' => 'Portfolio Manager', 'icon' => 'fa-briefcase', 'href' => '/ptf-portfolio'],
-    ['section' => 'Reports'],
-    ['key' => 'reports', 'label' => 'Reports & Export', 'icon' => 'fa-file-chart-column', 'href' => '/reports'],
-    ['key' => 'settings', 'label' => 'Settings', 'icon' => 'fa-gear', 'href' => '/settings', 'badge' => '!'],
-];
-@endphp
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
@@ -31,21 +13,21 @@ $items = $items ?: [
     <div class="sidebar-logo-text">Quant<span>Edge</span></div>
   </div>
 
-  @foreach ($items as $item)
-    @if (isset($item['section']))
-      {{-- When item has a section key, render a section header instead of a link --}}
-      <div class="sidebar-section">{{ $item['section'] }}</div>
-    @else
-      {{-- Render a reusable sidebar button component for each normal item --}}
-      <x-sidebar-item
-        :label="$item['label']"
-        :icon="$item['icon']"
-        :href="$item['href']"
-        :badge="$item['badge'] ?? null"
-        :active="$active === $item['key']"
-      />
-    @endif
-  @endforeach
+  <div class="sidebar-section">Overview</div>
+  <x-sidebar-item label="Dashboard" icon="fa-gauge-high" href="/index" :active="$active === 'dashboard'" />
+  <x-sidebar-item label="My Profile" icon="fa-user-circle" href="/profile" :active="$active === 'profile'" />
+
+  <div class="sidebar-section">ETF Module</div>
+  <x-sidebar-item label="ETF Calculator" icon="fa-calculator" href="/etf-calculator" :active="$active === 'etf-calculator'" />
+  <x-sidebar-item label="Fund Explorer" icon="fa-layer-group" href="/etf-funds" badge="12" :active="$active === 'etf-funds'" />
+  <x-sidebar-item label="Customer Management" icon="fa-users" href="/customer-management" :active="$active === 'customer-management'" />
+
+  <div class="sidebar-section">PTF Module</div>
+  <x-sidebar-item label="Portfolio Manager" icon="fa-briefcase" href="/ptf-portfolio" :active="$active === 'ptf-portfolio'" />
+
+  <div class="sidebar-section">Reports</div>
+  <x-sidebar-item label="Reports & Export" icon="fa-file-export" href="/reports" :active="$active === 'reports'" />
+  <x-sidebar-item label="Settings" icon="fa-gear" href="/settings" badge="!" :active="$active === 'settings'" />
 
   <div class="sidebar-profile">
     <div class="avatar"><span>AA</span><div class="online-dot"></div></div>

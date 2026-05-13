@@ -1,11 +1,11 @@
 @extends('layouts.layout')
 @section('title', 'Home')
+@section('header_title', 'Dashboard')
 @section('content')
 
   <div class="content page-animate">
 
-    <div class="page-title">Dashboard Overview</div>
-    <div class="page-sub">Monday, 3 May 2026 · Portfolio snapshot across all funds</div>
+    <x-page-header title="Dashboard Overview" subtitle="Monday, 3 May 2026 · Portfolio snapshot across all funds" />
 
 {{-- components start --}}
     <!-- Stats -->
@@ -49,35 +49,15 @@
           <div style="height:180px;position:relative"><canvas id="alloc-chart"></canvas></div>
           
           
-          <!-- {{--
-            Asset allocation ROWS (list under the donut chart)
-
-            COMPONENT FILE: resources/views/components/asset-allocation-row.blade.php
-            USAGE TAG:      <x-asset-allocation-row :label="..." :percent="N" :color="'#hex'" />
-            Rows for THIS PAGE: edit $assetAllocationRows below (one array = one loop).
-
-            CONNECTED TO:
-            - public/assets/js/charts.js → initAllocChart() labels/data/colors for
-              the donut; keep in sync when you change labels, percents, or colors.
-            - public/assets/css/app.css → .alloc-* and .progress-* classes.
-
-            ANOTHER ANONYMOUS COMPONENT: new file under resources/views/components/
-            CLASS-BASED (optional): php artisan make:component AssetAllocationRow --no-interaction
-          --}} -->
-
-
-          @php
-            $assetAllocationRows = [
-                ['label' => 'US Equities', 'percent' => 42, 'color' => '#4f8cff'],
-                ['label' => 'Bonds', 'percent' => 26, 'color' => '#00d4aa'],
-                ['label' => 'Intl Markets', 'percent' => 19, 'color' => '#7b5ea7'],
-                ['label' => 'Commodities', 'percent' => 13, 'color' => '#f59e0b'],
-            ];
-          @endphp
+          {{--
+            Asset allocation rows: resources/views/components/asset-allocation-row.blade.php
+            Keep labels/percents/colors in sync with public/assets/js/charts.js → initAllocChart().
+          --}}
           <div style="margin-top:14px">
-            @foreach ($assetAllocationRows as $row)
-              <x-asset-allocation-row :label="$row['label']" :percent="$row['percent']" :color="$row['color']" />
-            @endforeach
+            <x-asset-allocation-row label="US Equities" :percent="42" color="#4f8cff" />
+            <x-asset-allocation-row label="Bonds" :percent="26" color="#00d4aa" />
+            <x-asset-allocation-row label="Intl Markets" :percent="19" color="#7b5ea7" />
+            <x-asset-allocation-row label="Commodities" :percent="13" color="#f59e0b" />
           </div>
         </div>
       </div>

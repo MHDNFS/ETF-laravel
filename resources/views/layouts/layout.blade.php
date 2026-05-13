@@ -4,6 +4,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {{-- Before any CSS: apply saved theme so first paint matches (localStorage qe-theme; see public/assets/js/app.js). --}}
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('qe-theme') === 'light') {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.style.colorScheme = 'light';
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+          document.documentElement.style.colorScheme = 'dark';
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>@yield('title', 'Home')</title>
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
@@ -43,7 +57,7 @@
             class="fa-solid fa-briefcase"></i></span>Portfolio Manager</a>
       <div class="sidebar-section">Reports</div>
       <a class="nav-item" href="reports.html"><span class="nav-icon"><i
-            class="fa-solid fa-file-chart-column"></i></span>Reports &amp; Export</a>
+            class="fa-solid fa-file-export"></i></span>Reports &amp; Export</a>
       <a class="nav-item" href="settings.html"><span class="nav-icon"><i
             class="fa-solid fa-gear"></i></span>Settings<span class="nav-badge warn">!</span></a>
       <div class="sidebar-profile">
@@ -60,23 +74,26 @@
     </nav> --}}
 
     @php
-      // Provide default values if the view does not pass sidebar data.
-      // This keeps the layout working for k pages.
-      $sidebarItems = $sidebarItems ?? [];
       $activeSidebar = $activeSidebar ?? 'dashboard';
     @endphp
 
-    {{-- Use the reusable sidebar component and send the current active item key. --}}
-    <x-sidebar :items="$sidebarItems" :active="$activeSidebar" />
+    <x-sidebar :active="$activeSidebar" />
 
     <!-- Main -->
     <div class="main" id="main-area">
 
-      @include('includes.header.header')
+      @php
+        $headerTitle = 'Dashboard';
+        if ($__env->hasSection('header_title')) {
+          // @section('x', $y) stores e($y); decoding once before {{ }} avoids "Reports &amp; Export" on screen.
+          $headerTitle = html_entity_decode(trim($__env->yieldContent('header_title')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+      @endphp
+      @include('includes.header.header', ['headerTitle' => $headerTitle])
       <!-- Header -->
       {{-- <header class="header">
         <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-        <div class="header-breadcrumb">Dashboard</div>
+        <div class="header-breadcrumb">{{ $headerTitle ?? 'Dashboard' }}</div>
         <div class="header-search">
           <i class="fa-solid fa-magnifying-glass si"></i>
           <input type="text" placeholder="Search funds, tickers…">

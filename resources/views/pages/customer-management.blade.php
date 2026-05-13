@@ -1,13 +1,13 @@
 @extends('layouts.layout')
 @section('title', 'Customer Management')
+@section('header_title', 'Customer Management')
 
 @section('content')
     <div class="content page-animate">
         <!-- Header Section -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
-                <div class="page-title">Customer Management</div>
-                <div class="page-sub">Manage your customer database</div>
+                <x-page-header title="Customer Management" subtitle="Manage your customer database" />
             </div>
             <div style="display: flex; gap: 10px;">
                 <button class="btn btn-outline btn-sm" id="btn-export-csv">
@@ -16,7 +16,7 @@
                 <button class="btn btn-outline btn-sm" id="btn-export-pdf" style="color: #22c55e; border-color: #22c55e;">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </button>
-                <button class="btn btn-blue btn-sm" id="btn-add-customer">
+                <button type="button" class="btn btn-blue btn-sm" id="btn-add-customer">
                     <i class="fa-solid fa-plus"></i> Add Customer
                 </button>
             </div>
@@ -61,6 +61,9 @@
             </div>
         </div>
     </div>
+
+    <x-modals.add-customer-modal />
+    <x-modals.edit-customer-modal />
 
     <script>
         {{-- 

@@ -30,7 +30,46 @@
   --header-h: 64px;
   --shadow: 0 4px 24px rgba(0,0,0,0.4);
   --shadow-glow: 0 0 24px rgba(79,140,255,0.12);
+  color-scheme: dark;
 }
+
+/* Light theme: same tokens, new values (Tailwind-friendly later: mirror these in @theme if you migrate). */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #e8ecf4;
+  --bg2: #ffffff;
+  --bg3: #dce3f2;
+  --bg4: #cfd9ec;
+  --surface: #ffffff;
+  --surface2: #f1f4fb;
+  --border: rgba(15, 23, 42, 0.08);
+  --border2: rgba(15, 23, 42, 0.14);
+  --accent: #2563eb;
+  --accent2: #6d28d9;
+  --accent3: #059669;
+  --accent4: #d97706;
+  --danger: #dc2626;
+  --success: #059669;
+  --text: #0f172a;
+  --text2: #475569;
+  --text3: #64748b;
+  --shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
+  --shadow-glow: 0 0 24px rgba(37, 99, 235, 0.1);
+}
+
+html[data-theme="light"] .sidebar-overlay {
+  background: rgba(15, 23, 42, 0.35);
+}
+
+html[data-theme="light"] .badge-blue   { background: rgba(37, 99, 235, 0.12); color: #1d4ed8; }
+html[data-theme="light"] .badge-green  { background: rgba(5, 150, 105, 0.12); color: #047857; }
+html[data-theme="light"] .badge-red    { background: rgba(220, 38, 38, 0.12); color: #b91c1c; }
+html[data-theme="light"] .badge-amber  { background: rgba(217, 119, 6, 0.14); color: #b45309; }
+html[data-theme="light"] .badge-purple { background: rgba(109, 40, 217, 0.12); color: #5b21b6; }
+html[data-theme="light"] .tag-etf { background: rgba(37, 99, 235, 0.1); color: #1d4ed8; border-color: rgba(37, 99, 235, 0.22); }
+html[data-theme="light"] .tag-ptf { background: rgba(5, 150, 105, 0.1); color: #047857; border-color: rgba(5, 150, 105, 0.22); }
+html[data-theme="light"] tbody tr:hover { background: rgba(37, 99, 235, 0.06); }
+html[data-theme="light"] .modal-overlay { background: rgba(15, 23, 42, 0.45); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -430,6 +469,13 @@ input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
 .switch input:checked + .switch-slider { background: var(--accent); border-color: var(--accent); }
 .switch input:checked + .switch-slider::before { transform: translateX(18px); }
 
+/* ─── FORM TOGGLE ROW (settings-style label + switch) ───────── */
+.form-toggle-stack { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+.form-toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.form-toggle-row-text { min-width: 0; }
+.form-toggle-row-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.form-toggle-row-desc { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
 /* ─── CHART ───────────────────────────────────────────────── */
 .chart-container { position: relative; height: 220px; }
 
@@ -463,6 +509,35 @@ input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
 .notif-time { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .notif-text { font-size: 13px; }
 .notif-text strong { color: var(--text); }
+
+/* ─── REPORT ITEM (Recent Reports list) ───────────────────── */
+.report-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.report-item:last-child { border-bottom: none; }
+.report-item-body { flex: 1; min-width: 0; }
+.report-download-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.report-download-btn:hover,
+.report-download-btn:focus-visible {
+  background: var(--bg2);
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
 
 /* ─── TABS ────────────────────────────────────────────────── */
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
@@ -511,29 +586,121 @@ input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
 #add-etf-fund-modal .modal-footer {
   padding: 10px 20px 14px;
 }
-#add-trade-modal .form-group,
+
+/*
+  New Trade modal — .trade-form: fixed 40px control row so <input> and .select2-custom <select> share the same label gap.
+  Why selects looked “gappier”: wrapper div + line-height + browser select metrics; locking .trade-control to 40px + flex fixes it.
+*/
+#add-trade-modal .trade-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  direction: ltr;
+}
+#add-trade-modal .trade-row2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+#add-trade-modal .trade-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 40px;
+  row-gap: 4px;
+  align-items: start;
+  min-width: 0;
+}
+#add-trade-modal .trade-field > .form-label {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2 !important;
+}
+#add-trade-modal .trade-control {
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+#add-trade-modal .trade-control > .form-control {
+  width: 100%;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+#add-trade-modal .trade-control > .select2-custom {
+  flex: 1;
+  min-width: 0;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  position: relative;
+  line-height: 0;
+}
+#add-trade-modal .trade-control > .select2-custom select {
+  flex: 1;
+  width: 100% !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 8px 32px 8px 12px;
+  font-size: 13px;
+  line-height: 1.2;
+  appearance: none;
+}
+#add-trade-modal .trade-control > .select2-custom::after {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Add ETF fund modal: keeps classic .form-group / .form-row pattern */
 #add-etf-fund-modal .form-group {
   margin-bottom: 10px;
 }
-#add-trade-modal .form-label,
 #add-etf-fund-modal .form-label {
   margin-bottom: 3px;
   font-size: 11px;
 }
-#add-trade-modal .form-row,
 #add-etf-fund-modal .form-row {
-  gap: 12px;
+  column-gap: 12px;
+  row-gap: 0;
+  align-items: start;
+  margin-bottom: 10px;
 }
-#add-trade-modal .form-control,
-#add-trade-modal .select2-custom select,
+#add-etf-fund-modal .form-row .form-group {
+  margin-bottom: 0;
+}
 #add-etf-fund-modal .form-control,
 #add-etf-fund-modal .select2-custom select {
   padding: 8px 12px;
   font-size: 13px;
 }
-#add-trade-modal .select2-custom select,
 #add-etf-fund-modal .select2-custom select {
   padding-right: 32px;
+  margin: 0;
+  vertical-align: top;
+  line-height: 1.25;
 }
 
 /* ─── TOAST ───────────────────────────────────────────────── */
@@ -576,3 +743,7 @@ input[type=checkbox] { accent-color: var(--accent); cursor: pointer; }
 @media (max-width: 440px) {
   .stats-grid { grid-template-columns: 1fr; }
 }
+
+
+
+

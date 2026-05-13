@@ -85,6 +85,9 @@ function etfFundRatingHtml(stars) {
 // this JS file. So by the time this code runs, the <table id="..."> is present.
 // ─────────────────────────────────────────────────────────────────────────────
 
+/** Live reference for customer DataTable (add/edit modals on customer-management page). */
+let customerManagementDataTable = null;
+
 function initCustomerManagementDataTable() {
     const tableEl = document.getElementById('customerTable');
     if (!tableEl) {
@@ -93,6 +96,122 @@ function initCustomerManagementDataTable() {
 
     if (tableEl.classList.contains('dataTable')) {
         return;
+    }
+
+    let editingCustomerId = null;
+
+    function setCustomerField(id, value) {
+        const el = document.getElementById(id);
+        if (!el) {
+            return;
+        }
+        el.value = value != null && value !== '' ? String(value) : '';
+    }
+
+    function emptyCustomerFieldToNa(value) {
+        const t = String(value ?? '').trim();
+
+        return t === '' ? 'N/A' : t;
+    }
+
+    function resetAddCustomerForm() {
+        setCustomerField('add-customer-name', '');
+        setCustomerField('add-customer-email', '');
+        setCustomerField('add-customer-phone', '');
+        setCustomerField('add-customer-address', '');
+        setCustomerField('add-customer-balance', 'Rs. 0');
+        setCustomerField('add-customer-last-transaction', 'N/A');
+        const vehiclesEl = document.getElementById('add-customer-vehicles');
+        if (vehiclesEl) {
+            vehiclesEl.value = 'No Tracking';
+        }
+    }
+
+    function readAddCustomerForm() {
+        const name = document.getElementById('add-customer-name')?.value.trim() ?? '';
+        const emailRaw = document.getElementById('add-customer-email')?.value ?? '';
+        const phoneRaw = document.getElementById('add-customer-phone')?.value.trim() ?? '';
+        const address = emptyCustomerFieldToNa(document.getElementById('add-customer-address')?.value ?? '');
+        const balanceRaw = document.getElementById('add-customer-balance')?.value.trim() ?? '';
+        const lastTxRaw = document.getElementById('add-customer-last-transaction')?.value.trim() ?? '';
+        const vehicles = document.getElementById('add-customer-vehicles')?.value ?? 'No Tracking';
+
+        return {
+            name,
+            email: emptyCustomerFieldToNa(emailRaw),
+            phone: phoneRaw === '' ? 'N/A' : phoneRaw,
+            address,
+            balance: balanceRaw === '' ? 'Rs. 0' : balanceRaw,
+            last_transaction: lastTxRaw === '' ? 'N/A' : lastTxRaw,
+            vehicles,
+        };
+    }
+
+    function readEditCustomerForm() {
+        const id = document.getElementById('edit-customer-id')?.value ?? '';
+        const name = document.getElementById('edit-customer-name')?.value.trim() ?? '';
+        const emailRaw = document.getElementById('edit-customer-email')?.value ?? '';
+        const phoneRaw = document.getElementById('edit-customer-phone')?.value.trim() ?? '';
+        const address = emptyCustomerFieldToNa(document.getElementById('edit-customer-address')?.value ?? '');
+        const balanceRaw = document.getElementById('edit-customer-balance')?.value.trim() ?? '';
+        const lastTxRaw = document.getElementById('edit-customer-last-transaction')?.value.trim() ?? '';
+        const vehicles = document.getElementById('edit-customer-vehicles')?.value ?? 'No Tracking';
+
+        return {
+            id,
+            name,
+            email: emptyCustomerFieldToNa(emailRaw),
+            phone: phoneRaw === '' ? 'N/A' : phoneRaw,
+            address,
+            balance: balanceRaw === '' ? 'Rs. 0' : balanceRaw,
+            last_transaction: lastTxRaw === '' ? 'N/A' : lastTxRaw,
+            vehicles,
+        };
+    }
+
+    function fillEditCustomerForm(row) {
+        setCustomerField('edit-customer-id', row.id);
+        setCustomerField('edit-customer-name', row.name);
+        setCustomerField('edit-customer-email', row.email === 'N/A' ? '' : row.email);
+        setCustomerField('edit-customer-phone', row.phone === 'N/A' ? '' : row.phone);
+        setCustomerField('edit-customer-address', row.address === 'N/A' ? '' : row.address);
+        setCustomerField('edit-customer-balance', row.balance);
+        setCustomerField('edit-customer-last-transaction', row.last_transaction === 'N/A' ? '' : row.last_transaction);
+        const vehiclesEl = document.getElementById('edit-customer-vehicles');
+        if (vehiclesEl) {
+            const v = row.vehicles || 'No Tracking';
+            vehiclesEl.value = [...vehiclesEl.options].some((o) => o.value === v) ? v : 'No Tracking';
+        }
+    }
+
+    function findCustomerRowApiById(tableApi, id) {
+        let found = null;
+        tableApi.rows().every(function () {
+            if (String(this.data().id) === String(id)) {
+                found = this;
+                return false;
+            }
+            return true;
+        });
+        return found;
+    }
+
+    function nextCustomerId(tableApi) {
+        let max = 0;
+        tableApi.rows().every(function () {
+            const n = parseInt(String(this.data().id), 10);
+            if (!Number.isNaN(n) && n > max) {
+                max = n;
+            }
+        });
+        return max + 1;
+    }
+
+    function refreshCustomerCountBadge(tableApi) {
+        const countEl = document.getElementById('customer-count');
+        if (countEl) {
+            countEl.textContent = String(tableApi.rows().count());
+        }
     }
 
     const mockCustomerData = [
@@ -140,7 +259,7 @@ function initCustomerManagementDataTable() {
                 render: function () {
                     return `
                         <span class="dt-actions-cell">
-                        <button type="button" class="btn btn-outline btn-sm btn-icon-pill" title="Edit">
+                        <button type="button" class="btn btn-outline btn-sm btn-icon-pill js-edit-customer" title="Edit">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
                             <button type="button" class="btn btn-outline btn-sm btn-icon-pill btn-outline--danger" title="Delete">
@@ -178,10 +297,94 @@ function initCustomerManagementDataTable() {
             }
         },
         initComplete: function () {
-            const count = this.api().data().length;
-            const countEl = document.getElementById('customer-count');
-            if (countEl) countEl.innerText = count;
+            refreshCustomerCountBadge(this.api());
         }
+    });
+
+    customerManagementDataTable = table;
+
+    const addCustomerBtn = document.getElementById('btn-add-customer');
+    if (addCustomerBtn) {
+        addCustomerBtn.addEventListener('click', () => {
+            resetAddCustomerForm();
+            showModal('add-customer-modal');
+        });
+    }
+
+    const addCustomerSave = document.getElementById('add-customer-save');
+    if (addCustomerSave) {
+        addCustomerSave.addEventListener('click', () => {
+            const f = readAddCustomerForm();
+            if (!f.name) {
+                showToast('error', 'Name required', 'Please enter a customer name.');
+                return;
+            }
+            table.row
+                .add({
+                    id: nextCustomerId(table),
+                    name: f.name,
+                    email: f.email,
+                    phone: f.phone,
+                    address: f.address,
+                    balance: f.balance,
+                    vehicles: f.vehicles,
+                    last_transaction: f.last_transaction,
+                })
+                .draw(false);
+            refreshCustomerCountBadge(table);
+            closeModal('add-customer-modal');
+            showToast('success', 'Customer added', 'New customer added to the table (demo).');
+        });
+    }
+
+    const editCustomerSave = document.getElementById('edit-customer-save');
+    if (editCustomerSave) {
+        editCustomerSave.addEventListener('click', () => {
+            if (editingCustomerId === null) {
+                return;
+            }
+            const f = readEditCustomerForm();
+            if (!f.name) {
+                showToast('error', 'Name required', 'Please enter a customer name.');
+                return;
+            }
+            const rowApi = findCustomerRowApiById(table, editingCustomerId);
+            if (!rowApi) {
+                showToast('error', 'Row not found', 'Could not update this customer.');
+                return;
+            }
+            rowApi
+                .data({
+                    id: f.id,
+                    name: f.name,
+                    email: f.email,
+                    phone: f.phone,
+                    address: f.address,
+                    balance: f.balance,
+                    vehicles: f.vehicles,
+                    last_transaction: f.last_transaction,
+                })
+                .draw(false);
+            editingCustomerId = null;
+            closeModal('edit-customer-modal');
+            showToast('success', 'Customer updated', 'Changes saved (demo).');
+        });
+    }
+
+    tableEl.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.js-edit-customer');
+        if (!editBtn || !tableEl.contains(editBtn)) {
+            return;
+        }
+        const tr = editBtn.closest('tr');
+        const rowApi = table.row(tr);
+        if (!rowApi.length) {
+            return;
+        }
+        const rowData = rowApi.data();
+        editingCustomerId = rowData.id;
+        fillEditCustomerForm(rowData);
+        showModal('edit-customer-modal');
     });
 
     const searchBox = document.getElementById('custom-searchBox');

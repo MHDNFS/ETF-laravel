@@ -1,11 +1,11 @@
 @extends('layouts.layout')
 @section('title','Profile')
+@section('header_title', 'My Profile')
 @section('content')
 
 <div class="content page-animate">
 
-      <div class="page-title">My Profile</div>
-      <div class="page-sub">Manage your account, preferences, and activity</div>
+      <x-page-header title="My Profile" subtitle="Manage your account, preferences, and activity" />
       <div class="card" style="margin-bottom:20px;overflow:visible">
         <div class="profile-banner"></div>
         <div class="profile-avatar-wrap"><div class="avatar-lg">AA</div></div>
@@ -23,20 +23,11 @@
         
         
         
-        <!-- {{-- Profile stats row: data here → <x-profile-stat /> (see components/profile-stat.blade.php) --}} -->
-        
-        @php
-          $profileStats = [
-              ['value' => '$48.3M', 'label' => 'Assets Managed'],
-              ['value' => '12', 'label' => 'Active Funds'],
-              ['value' => '+12.7%', 'label' => 'Avg Return (YTD)'],
-              ['value' => '4.8★', 'label' => 'Performance Score'],
-          ];
-        @endphp
         <div class="profile-stats-row">
-          @foreach ($profileStats as $stat)
-            <x-profile-stat :value="$stat['value']" :label="$stat['label']" />
-          @endforeach
+          <x-profile-stat value="$48.3M" label="Assets Managed" />
+          <x-profile-stat value="12" label="Active Funds" />
+          <x-profile-stat value="+12.7%" label="Avg Return (YTD)" />
+          <x-profile-stat value="4.8★" label="Performance Score" />
         </div>
       </div>
 
@@ -47,21 +38,13 @@
           <div class="card-header"><span class="card-title">Account Details</span></div>
           <div class="card-body">
 
-          
-            @php
-              $accountDetails = [
-                  ['label' => 'Full Name', 'value' => 'Alex Analyst'],
-                  ['label' => 'Email', 'value' => 'analyst@quantedge.io'],
-                  ['label' => 'Role', 'value' => 'Senior Portfolio Manager'],
-                  ['label' => 'Department', 'value' => 'Investment Strategy'],
-                  ['label' => 'Location', 'value' => 'Kandy, Sri Lanka'],
-                  ['label' => 'Member Since', 'value' => 'Jan 2024'],
-                  ['label' => 'Last Login', 'value' => 'Today, 08:42 AM'],
-              ];
-            @endphp
-            @foreach ($accountDetails as $row)
-              <x-profile-detail-row :label="$row['label']" :value="$row['value']" />
-            @endforeach
+            <x-profile-detail-row label="Full Name" value="Alex Analyst" />
+            <x-profile-detail-row label="Email" value="analyst@quantedge.io" />
+            <x-profile-detail-row label="Role" value="Senior Portfolio Manager" />
+            <x-profile-detail-row label="Department" value="Investment Strategy" />
+            <x-profile-detail-row label="Location" value="Kandy, Sri Lanka" />
+            <x-profile-detail-row label="Member Since" value="Jan 2024" />
+            <x-profile-detail-row label="Last Login" value="Today, 08:42 AM" />
 
 
 
@@ -71,40 +54,24 @@
         <div class="card">
           <div class="card-header"><span class="card-title">Recent Activity</span></div>
           <div class="card-body">
-            {{-- Recent activity rows → <x-profile-activity-item /> (components/profile-activity-item.blade.php) --}}
-            
-            
-            
-            @php
-              $recentActivity = [
-                  [
-                      'icon' => 'fa-check',
-                      'iconStyle' => 'background:rgba(16,185,129,0.12);color:var(--success)',
-                      'time' => '2 May 2026 · $61,488',
-                      'text' => 'Settled <strong>VOO x 120</strong> — ETF trade',
-                  ],
-                  [
-                      'icon' => 'fa-calculator',
-                      'iconStyle' => 'background:rgba(79,140,255,0.12);color:var(--accent)',
-                      'time' => '1 May 2026',
-                      'text' => 'ETF Calculation — QQQ scenario',
-                  ],
-                  [
-                      'icon' => 'fa-file-export',
-                      'iconStyle' => 'background:rgba(245,158,11,0.12);color:var(--accent4)',
-                      'time' => '1 May 2026',
-                      'text' => 'Exported <strong>Q1 2026</strong> PDF Report',
-                  ],
-              ];
-            @endphp
-            @foreach ($recentActivity as $activity)
-              <x-profile-activity-item
-                :icon="$activity['icon']"
-                :icon-style="$activity['iconStyle']"
-                :time="$activity['time']"
-                :text="$activity['text']"
-              />
-            @endforeach
+            <x-profile-activity-item
+              icon="fa-check"
+              icon-style="background:rgba(16,185,129,0.12);color:var(--success)"
+              time="2 May 2026 · $61,488"
+              :text="'Settled <strong>VOO x 120</strong> — ETF trade'"
+            />
+            <x-profile-activity-item
+              icon="fa-calculator"
+              icon-style="background:rgba(79,140,255,0.12);color:var(--accent)"
+              time="1 May 2026"
+              text="ETF Calculation — QQQ scenario"
+            />
+            <x-profile-activity-item
+              icon="fa-file-export"
+              icon-style="background:rgba(245,158,11,0.12);color:var(--accent4)"
+              time="1 May 2026"
+              :text="'Exported <strong>Q1 2026</strong> PDF Report'"
+            />
           </div>
         </div>
       </div>

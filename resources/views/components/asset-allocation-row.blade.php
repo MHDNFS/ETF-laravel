@@ -6,8 +6,8 @@
   percentage text, and a mini progress bar (same visual as before refactor).
 
   WHY A COMPONENT
-  One row template: the page passes label/percent/color (e.g. from a @foreach
-  over $assetAllocationRows in index.blade.php) so markup stays identical.
+  One row template: the page passes label/percent/color (explicit
+  <x-asset-allocation-row /> tags in index.blade.php) so markup stays identical.
 
   WHERE IT IS USED
   - resources/views/pages/index.blade.php — Asset Allocation card, below

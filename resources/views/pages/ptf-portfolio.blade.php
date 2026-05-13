@@ -1,12 +1,12 @@
 @extends('layouts.layout')
 @section('title','PTF PORTFOLIO')
+@section('header_title', 'Portfolio Manager')
 @section('content')
 
 
     <div class="content page-animate">
 
-      <div class="page-title">Portfolio Manager</div>
-      <div class="page-sub">Manage holdings, rebalance, and monitor PTF positions</div>
+      <x-page-header title="Portfolio Manager" subtitle="Manage holdings, rebalance, and monitor PTF positions" />
       <div class="stats-grid">
         <div class="stat-card blue"><div class="stat-icon blue"><i class="fa-solid fa-wallet"></i></div><div class="stat-label">Total Portfolio Value</div><div class="stat-value">$603K</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> +2.3% today</div></div>
         <div class="stat-card green"><div class="stat-icon green"><i class="fa-solid fa-arrow-trend-up"></i></div><div class="stat-label">Unrealised P&amp;L</div><div class="stat-value">+$41.2K</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> +7.3%</div></div>
