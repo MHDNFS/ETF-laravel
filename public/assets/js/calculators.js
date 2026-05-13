@@ -41,39 +41,6 @@ function calcETF() {
   showToast('success', 'ETF Calculated', 'Results updated successfully.');
 }
 
-/* ─── PTF CALCULATOR ──────────────────────────────────────── */
-function calcPTF() {
-  const value   = parseFloat(document.getElementById('ptf-value').value)   || 250000;
-  const fee     = parseFloat(document.getElementById('ptf-fee').value)     || 1.5;
-  const ret     = parseFloat(document.getElementById('ptf-return').value)  || 10.5;
-  const horizon = parseFloat(document.getElementById('ptf-horizon').value) || 10;
-
-  const netRate   = (ret - fee) / 100;
-  const grossRate = ret / 100;
-  const finalVal  = value * Math.pow(1 + netRate, horizon);
-  const grossFinal = value * Math.pow(1 + grossRate, horizon);
-  const totalFees = grossFinal - finalVal;
-  const netProfit = finalVal - value;
-
-  function setEl(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-
-  setEl('ptf-r-gross', '+' + ((grossRate * horizon * 100) / 1).toFixed(1) + '%');
-  setEl('ptf-r-net',   '+' + ((netRate   * horizon * 100) / 1).toFixed(1) + '%');
-  setEl('ptf-r-fees',  '$' + fmt(totalFees.toFixed(0)));
-  setEl('ptf-r-drag',  '-' + fee.toFixed(1) + '%');
-  setEl('ptf-r-final', '$' + fmt(finalVal.toFixed(0)));
-  setEl('ptf-r-profit','+$' + fmt(netProfit.toFixed(0)));
-
-  if (typeof initPTFChart === 'function') {
-    initPTFChart(value, netRate, grossRate);
-  }
-
-  showToast('success', 'PTF Calculated', 'Portfolio metrics refreshed.');
-}
-
 /* ─── NUMBER FORMAT HELPER ────────────────────────────────── */
 function fmt(n) {
   return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');

@@ -39,8 +39,6 @@
       <a class="nav-item" href="etf-funds.html"><span class="nav-icon"><i
             class="fa-solid fa-layer-group"></i></span>Fund Explorer<span class="nav-badge">12</span></a>
       <div class="sidebar-section">PTF Module</div>
-      <a class="nav-item" href="ptf-calculator.html"><span class="nav-icon"><i
-            class="fa-solid fa-sliders"></i></span>PTF Calculator</a>
       <a class="nav-item" href="ptf-portfolio.html"><span class="nav-icon"><i
             class="fa-solid fa-briefcase"></i></span>Portfolio Manager</a>
       <div class="sidebar-section">Reports</div>

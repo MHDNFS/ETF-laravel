@@ -81,37 +81,3 @@ function initETFProjChart(amount, rate) {
     }
   });
 }
-
-/* ─── PTF GROWTH LINE (ptf-calculator.html) ──────────────── */
-function initPTFChart(base, netRate, grossRate) {
-  const ctx = getCtx('ptf-chart');
-  if (!ctx) return;
-  base      = base      || 250000;
-  netRate   = netRate   || 0.09;
-  grossRate = grossRate || 0.105;
-  const net   = [];
-  const gross = [];
-  for (let y = 0; y <= 10; y++) {
-    net.push(Math.round(base * Math.pow(1 + netRate,   y)));
-    gross.push(Math.round(base * Math.pow(1 + grossRate, y)));
-  }
-  const labels = Array.from({ length: 11 }, function(_, i){ return 'Y' + i; });
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Net Value',    data: net,   borderColor: '#00d4aa', backgroundColor: 'rgba(0,212,170,0.06)', fill: true, tension: 0.4, pointRadius: 2 },
-        { label: 'Without Fees', data: gross, borderColor: '#4f8cff', borderDash: [4,4], tension: 0.4, pointRadius: 0 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: '#8fa3c8', font: { size: 11 } } } },
-      scales: {
-        x: { ticks: { color: '#5a7299', font: { size: 11 } }, grid: { color: 'rgba(99,142,255,0.06)' } },
-        y: { ticks: { color: '#5a7299', font: { size: 11 }, callback: function(v){ return '$' + (v/1000).toFixed(0) + 'k'; } }, grid: { color: 'rgba(99,142,255,0.06)' } }
-      }
-    }
-  });
-}

@@ -18,7 +18,6 @@ $items = $items ?: [
     ['key' => 'fund-explorer', 'label' => 'Fund Explorer', 'icon' => 'fa-layer-group', 'href' => '/etf-funds', 'badge' => '12'],
     ['key' => 'customer-management', 'label' => 'Customer Management', 'icon' => 'fa-users', 'href' => '/customer-management'],
     ['section' => 'PTF Module'],
-    ['key' => 'ptf-calculator', 'label' => 'PTF Calculator', 'icon' => 'fa-sliders', 'href' => '/ptf-calculator'],
     ['key' => 'ptf-portfolio', 'label' => 'Portfolio Manager', 'icon' => 'fa-briefcase', 'href' => '/ptf-portfolio'],
     ['section' => 'Reports'],
     ['key' => 'reports', 'label' => 'Reports & Export', 'icon' => 'fa-file-chart-column', 'href' => '/reports'],

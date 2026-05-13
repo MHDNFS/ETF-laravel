@@ -6,8 +6,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
-//in here i put index page is loading with side bar access,,
+// in here i put index page is loading with side bar access,,
 Route::get('/index', function () {
     // Pass the active sidebar key so the dashboard link is highlighted.
     // This key must match the sidebar item's 'key' value.
@@ -16,20 +15,18 @@ Route::get('/index', function () {
     ]);
 });
 
-//we can call like this for any pages in sidebar
+// we can call like this for any pages in sidebar
 Route::get('/profile', function () {
     return view('pages.profile', [
         'activeSidebar' => 'profile',
     ]);
 });
 
-
 Route::get('/etf-calculator', function () {
     return view('pages.etf-calculator', [
         'activeSidebar' => 'etf-calculator',
     ]);
 });
-
 
 Route::get('/etf-funds', function () {
     return view('pages.etf-funds', [
@@ -43,23 +40,11 @@ Route::get('/customer-management', function () {
     ]);
 });
 
-
-
-Route::get('/ptf-calculator', function () {
-    return view('pages.ptf-calculator', [
-        'activeSidebar' => 'ptf-calculator',
-    ]);
-});
-
-
-
 Route::get('/ptf-portfolio', function () {
     return view('pages.ptf-portfolio', [
         'activeSidebar' => 'ptf-portfolio',
     ]);
 });
-
-
 
 Route::get('/reports', function () {
     return view('pages.reports', [
@@ -67,23 +52,8 @@ Route::get('/reports', function () {
     ]);
 });
 
-
-
 Route::get('/settings', function () {
     return view('pages.settings', [
         'activeSidebar' => 'settings',
     ]);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
