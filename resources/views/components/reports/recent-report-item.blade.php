@@ -1,5 +1,5 @@
 <!-- {{--
-  <x-recent-report-item /> — one row in Recent Reports (Reports page).
+  <x-reports.recent-report-item /> — one row in Recent Reports (Reports page).
   CSS: public/assets/css/app.css → .report-item, .report-item-body, .report-download-btn; reuses .notif-icon, .notif-text, .notif-time
   Props: icon (e.g. fa-file-pdf), iconStyle (inline icon box), title (plain text, shown bold), meta (subtitle line).
   Download control is visual only: type="button" with no handler (pointer + hover styling; no download yet).

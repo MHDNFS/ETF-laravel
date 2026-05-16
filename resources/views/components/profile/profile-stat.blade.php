@@ -1,5 +1,5 @@
 {{--
-  <x-profile-stat /> — one metric in the profile banner stats row.
+  <x-profile.profile-stat /> — one metric in the profile banner stats row.
   Styles: public/assets/css/app.css → .profile-stat, .val, .lbl
   Props: value (main number/text), label (caption below).
 --}}

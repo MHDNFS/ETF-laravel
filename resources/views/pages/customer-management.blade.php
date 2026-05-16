@@ -8,9 +8,9 @@
         <!-- Header Section -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
-                <x-page-header title="Customer Management" subtitle="Manage your customer database" />
+                <x-ui.page-header title="Customer Management" subtitle="Manage your customer database" />
             </div>
-            <x-page-action-toolbar
+            <x-ui.page-action-toolbar
                 :show-export-csv="true"
                 :show-export-pdf="true"
                 :show-bulk-upload="true"

@@ -1,5 +1,5 @@
 {{--
-  Blade component: <x-asset-allocation-row />
+  Blade component: <x-dashboard.asset-allocation-row />
 
   WHAT THIS IS
   Single row under the Asset Allocation donut chart: colored dot, name,
@@ -7,11 +7,11 @@
 
   WHY A COMPONENT
   One row template: the page passes label/percent/color (explicit
-  <x-asset-allocation-row /> tags in index.blade.php) so markup stays identical.
+  <x-dashboard.asset-allocation-row /> tags in index.blade.php) so markup stays identical.
 
   WHERE IT IS USED
   - resources/views/pages/index.blade.php — Asset Allocation card, below
-    <canvas id="alloc-chart"> (rows built via <x-asset-allocation-row />).
+    <canvas id="alloc-chart"> (rows built via <x-dashboard.asset-allocation-row />).
 
   FILES THAT STAY IN SYNC WHEN YOU CHANGE DATA OR STYLES
   - This file — row HTML structure and which props exist.
@@ -21,7 +21,7 @@
     (labels + segment colors). If you change labels/percents/colors here,
     update the chart data there so the legend matches the graphic.
 
-  HOW TO ADD ANOTHER ANONYMOUS COMPONENT (same pattern as x-stat-card)
+  HOW TO ADD ANOTHER ANONYMOUS COMPONENT (same pattern as x-ui.stat-card)
   1. Create resources/views/components/your-component-name.blade.php
   2. Optionally add @props([...]) at the top for attributes.
   3. Use <x-your-component-name prop="value" /> in any Blade view.

@@ -15,65 +15,65 @@
         <div class="modal-body">
             <div class="trade-form" role="group" aria-labelledby="add-customer-modal-title">
                 <div class="trade-field">
-                    <x-form-label for="add-customer-name">Name</x-form-label>
+                    <x-forms.form-label for="add-customer-name">Name</x-forms.form-label>
                     <div class="trade-control">
-                        <x-form-input id="add-customer-name" name="add_customer_name" type="text" placeholder="Full name" />
+                        <x-forms.form-input id="add-customer-name" name="add_customer_name" type="text" placeholder="Full name" />
                     </div>
                 </div>
 
                 <div class="trade-row2">
                     <div class="trade-field">
-                        <x-form-label for="add-customer-email">Email</x-form-label>
+                        <x-forms.form-label for="add-customer-email">Email</x-forms.form-label>
                         <div class="trade-control">
-                            <x-form-input id="add-customer-email" name="add_customer_email" type="email" placeholder="name@example.com" />
+                            <x-forms.form-input id="add-customer-email" name="add_customer_email" type="email" placeholder="name@example.com" />
                         </div>
                     </div>
                     <div class="trade-field">
-                        <x-form-label for="add-customer-phone">Phone</x-form-label>
+                        <x-forms.form-label for="add-customer-phone">Phone</x-forms.form-label>
                         <div class="trade-control">
-                            <x-form-input id="add-customer-phone" name="add_customer_phone" type="text" placeholder="0770000000" />
+                            <x-forms.form-input id="add-customer-phone" name="add_customer_phone" type="text" placeholder="0770000000" />
                         </div>
                     </div>
                 </div>
 
                 <div class="trade-field">
-                    <x-form-label for="add-customer-address">Address</x-form-label>
+                    <x-forms.form-label for="add-customer-address">Address</x-forms.form-label>
                     <div class="trade-control">
-                        <x-form-input id="add-customer-address" name="add_customer_address" type="text" placeholder="Street, city" />
+                        <x-forms.form-input id="add-customer-address" name="add_customer_address" type="text" placeholder="Street, city" />
                     </div>
                 </div>
 
                 <div class="trade-row2">
                     <div class="trade-field">
-                        <x-form-label for="add-customer-balance">Outstanding balance</x-form-label>
+                        <x-forms.form-label for="add-customer-balance">Outstanding balance</x-forms.form-label>
                         <div class="trade-control">
-                            <x-form-input id="add-customer-balance" name="add_customer_balance" type="text" placeholder="Rs. 0" />
+                            <x-forms.form-input id="add-customer-balance" name="add_customer_balance" type="text" placeholder="Rs. 0" />
                         </div>
                     </div>
                     <div class="trade-field">
-                        <x-form-label for="add-customer-last-transaction">Last transaction</x-form-label>
+                        <x-forms.form-label for="add-customer-last-transaction">Last transaction</x-forms.form-label>
                         <div class="trade-control">
-                            <x-form-input id="add-customer-last-transaction" name="add_customer_last_transaction" type="text" placeholder="N/A or date" />
+                            <x-forms.form-input id="add-customer-last-transaction" name="add_customer_last_transaction" type="text" placeholder="N/A or date" />
                         </div>
                     </div>
                 </div>
 
                 <div class="trade-field">
-                    <x-form-label for="add-customer-vehicles">Vehicles</x-form-label>
+                    <x-forms.form-label for="add-customer-vehicles">Vehicles</x-forms.form-label>
                     <div class="trade-control">
-                        <x-form-select id="add-customer-vehicles" name="add_customer_vehicles">
+                        <x-forms.form-select id="add-customer-vehicles" name="add_customer_vehicles">
                             <option value="No Tracking" selected>No Tracking</option>
                             <option value="1 Vehicle(s)">1 Vehicle(s)</option>
                             <option value="2 Vehicle(s)">2 Vehicle(s)</option>
                             <option value="3+ Vehicle(s)">3+ Vehicle(s)</option>
-                        </x-form-select>
+                        </x-forms.form-select>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-outline" onclick="closeModal('add-customer-modal')">Cancel</button>
-            <x-form-button type="button" id="add-customer-save">Save customer</x-form-button>
+            <x-forms.form-button type="button" id="add-customer-save">Save customer</x-forms.form-button>
         </div>
     </div>
 </div>

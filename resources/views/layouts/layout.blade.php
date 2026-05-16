@@ -77,7 +77,7 @@
       $activeSidebar = $activeSidebar ?? 'dashboard';
     @endphp
 
-    <x-sidebar :active="$activeSidebar" />
+    <x-layout.sidebar :active="$activeSidebar" />
 
     <!-- Main -->
     <div class="main" id="main-area">

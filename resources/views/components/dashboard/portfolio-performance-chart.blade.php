@@ -7,7 +7,7 @@
   Portfolio Performance line chart (ETF / PTF / Benchmark).
 
   WHERE USED
-  - resources/views/pages/index.blade.php — <x-portfolio-performance-chart />
+  - resources/views/pages/index.blade.php — <x-dashboard.portfolio-performance-chart />
 
   CHART LOGIC (keep in sync)
   - public/assets/js/charts.js → initPerfChart() targets #{{ $canvasId }}

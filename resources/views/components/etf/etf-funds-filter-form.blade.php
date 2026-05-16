@@ -1,46 +1,46 @@
 {{--
   ETF Fund Explorer — filter row (same layout as previous inline markup in etf-funds.blade.php).
-  Uses x-form-label, x-form-select (slot options only), x-form-button — same pattern as etf-parameters-form.
+  Uses x-forms.form-label, x-forms.form-select (slot options only), x-forms.form-button — same pattern as etf-parameters-form.
 --}}
 <div class="form-row" style="gap:12px;align-items:flex-end">
     <div class="form-group" style="margin-bottom:0">
-        <x-form-label for="etf-fund-filter-asset">Asset Class</x-form-label>
-        <x-form-select id="etf-fund-filter-asset" name="asset_class">
+        <x-forms.form-label for="etf-fund-filter-asset">Asset Class</x-forms.form-label>
+        <x-forms.form-select id="etf-fund-filter-asset" name="asset_class">
             <option value="All Classes" selected>All Classes</option>
             <option value="Equity">Equity</option>
             <option value="Fixed Income">Fixed Income</option>
             <option value="Commodity">Commodity</option>
             <option value="Real Estate">Real Estate</option>
-        </x-form-select>
+        </x-forms.form-select>
     </div>
     <div class="form-group" style="margin-bottom:0">
-        <x-form-label for="etf-fund-filter-region">Region</x-form-label>
-        <x-form-select id="etf-fund-filter-region" name="region">
+        <x-forms.form-label for="etf-fund-filter-region">Region</x-forms.form-label>
+        <x-forms.form-select id="etf-fund-filter-region" name="region">
             <option value="Global" selected>Global</option>
             <option value="North America">North America</option>
             <option value="Europe">Europe</option>
             <option value="Asia Pacific">Asia Pacific</option>
             <option value="Emerging Markets">Emerging Markets</option>
-        </x-form-select>
+        </x-forms.form-select>
     </div>
     <div class="form-group" style="margin-bottom:0">
-        <x-form-label for="etf-fund-filter-ter">TER Range</x-form-label>
-        <x-form-select id="etf-fund-filter-ter" name="ter_range">
+        <x-forms.form-label for="etf-fund-filter-ter">TER Range</x-forms.form-label>
+        <x-forms.form-select id="etf-fund-filter-ter" name="ter_range">
             <option value="Any" selected>Any</option>
             <option value="< 0.10%">&lt; 0.10%</option>
             <option value="0.10% – 0.50%">0.10% – 0.50%</option>
             <option value="> 0.50%">&gt; 0.50%</option>
-        </x-form-select>
+        </x-forms.form-select>
     </div>
     <div class="form-group" style="margin-bottom:0">
-        <x-form-label for="etf-fund-filter-sort">Sort By</x-form-label>
-        <x-form-select id="etf-fund-filter-sort" name="sort_by">
+        <x-forms.form-label for="etf-fund-filter-sort">Sort By</x-forms.form-label>
+        <x-forms.form-select id="etf-fund-filter-sort" name="sort_by">
             <option value="AUM (High–Low)" selected>AUM (High–Low)</option>
             <option value="Return 1Y">Return 1Y</option>
             <option value="TER (Low–High)">TER (Low–High)</option>
-        </x-form-select>
+        </x-forms.form-select>
     </div>
-    <x-form-button type="button" icon="fa-filter" style="flex-shrink:0">
+    <x-forms.form-button type="button" icon="fa-filter" style="flex-shrink:0">
         Apply
-    </x-form-button>
+    </x-forms.form-button>
 </div>

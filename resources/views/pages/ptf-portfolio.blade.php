@@ -6,11 +6,11 @@
 
     <div class="content page-animate">
 
-      <x-page-header title="Portfolio Manager" subtitle="Manage holdings, rebalance, and monitor PTF positions" />
+      <x-ui.page-header title="Portfolio Manager" subtitle="Manage holdings, rebalance, and monitor PTF positions" />
       <div class="stats-grid">
-        <x-stat-card color="blue" icon="fa-wallet" label="Total Portfolio Value" value="$603K" trend="up" trendText="+2.3% today" />
-        <x-stat-card color="green" icon="fa-arrow-trend-up" label='Unrealised P&L' value="+$41.2K" trend="up" trendText="+7.3%" />
-        <x-stat-card
+        <x-ui.stat-card color="blue" icon="fa-wallet" label="Total Portfolio Value" value="$603K" trend="up" trendText="+2.3% today" />
+        <x-ui.stat-card color="green" icon="fa-arrow-trend-up" label='Unrealised P&L' value="+$41.2K" trend="up" trendText="+7.3%" />
+        <x-ui.stat-card
           color="amber"
           icon="fa-rotate"
           label="Rebalance Drift"

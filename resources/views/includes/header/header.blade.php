@@ -1,12 +1,12 @@
 <header class="header">
       <button class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
-      <x-header-breadcrumb :title="$headerTitle ?? 'Dashboard'" />
+      <x-layout.header-breadcrumb :title="$headerTitle ?? 'Dashboard'" />
       <div class="header-search">
         <i class="fa-solid fa-magnifying-glass si"></i>
         <input type="text" placeholder="Search funds, tickers…">
       </div>
       <div class="header-actions">
-        <x-theme-toggle />
+        <x-layout.theme-toggle />
         <div class="hbtn" onclick="showModal('notifications-modal')" title="Notifications">
           <i class="fa-regular fa-bell"></i><span class="badge">3</span>
         </div>

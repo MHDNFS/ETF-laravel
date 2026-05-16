@@ -2,7 +2,7 @@
 # ============================
 # I Placed My image assets here:
 #
-# Sidebar logo (live): components/sidebar.blade.php uses asset('assets/img/company-logo.png').
+# Sidebar logo (live): components/layout/sidebar.blade.php uses asset('assets/img/company-logo.png').
 # Rename the file or the Blade img src if yours differs.
 #
 #   company-logo.png  (recommended for sidebar)

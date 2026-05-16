@@ -25,7 +25,7 @@ import pdfMake from 'pdfmake/build/pdfmake';
 // pdfFonts: The font data that pdfMake needs to draw text inside PDF files
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-// Tom Select: searchable single-select for all <x-form-select> (.select2-custom) fields
+// Tom Select: searchable single-select for all <x-forms.form-select> (.select2-custom) fields
 import TomSelect from 'tom-select';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -45,8 +45,8 @@ window.$ = window.jQuery = $;
 window.DataTable = DataTable;
 
 /**
- * Initialize Tom Select on every `.select2-custom` wrapper from `<x-form-select>` (search in dropdown).
- * Opt out per field: `<x-form-select :searchable="false">`.
+ * Initialize Tom Select on every `.select2-custom` wrapper from `<x-forms.form-select>` (search in dropdown).
+ * Opt out per field: `<x-forms.form-select :searchable="false">`.
  */
 function initSearchableFormSelects(scope = document) {
     scope.querySelectorAll('.select2-custom').forEach((wrap) => {
@@ -90,7 +90,7 @@ function escapeHtml(text) {
         .replace(/"/g, '&quot;');
 }
 
-/** Sync native <select> value when Tom Select (x-form-select) is active. */
+/** Sync native <select> value when Tom Select (x-forms.form-select) is active. */
 function setSelectElementValue(selectEl, value) {
     if (!selectEl) {
         return;

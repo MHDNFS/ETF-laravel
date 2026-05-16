@@ -3,7 +3,7 @@
 ])
 
 {{--
-  Sidebar: explicit section headers and <x-sidebar-item> per link.
+  Sidebar: explicit section headers and <x-layout.sidebar-item> per link.
   Pass :active from the layout (same keys as route $activeSidebar).
 --}}
 
@@ -23,20 +23,20 @@
   </div>
 
   <div class="sidebar-section">Overview</div>
-  <x-sidebar-item label="Dashboard" icon="fa-gauge-high" href="/index" :active="$active === 'dashboard'" />
-  <x-sidebar-item label="My Profile" icon="fa-user-circle" href="/profile" :active="$active === 'profile'" />
+  <x-layout.sidebar-item label="Dashboard" icon="fa-gauge-high" href="/index" :active="$active === 'dashboard'" />
+  <x-layout.sidebar-item label="My Profile" icon="fa-user-circle" href="/profile" :active="$active === 'profile'" />
 
   <div class="sidebar-section">ETF Module</div>
-  <x-sidebar-item label="ETF Calculator" icon="fa-calculator" href="/etf-calculator" :active="$active === 'etf-calculator'" />
-  <x-sidebar-item label="Fund Explorer" icon="fa-layer-group" href="/etf-funds" badge="12" :active="$active === 'etf-funds'" />
-  <x-sidebar-item label="Customer Management" icon="fa-users" href="/customer-management" :active="$active === 'customer-management'" />
+  <x-layout.sidebar-item label="ETF Calculator" icon="fa-calculator" href="/etf-calculator" :active="$active === 'etf-calculator'" />
+  <x-layout.sidebar-item label="Fund Explorer" icon="fa-layer-group" href="/etf-funds" badge="12" :active="$active === 'etf-funds'" />
+  <x-layout.sidebar-item label="Customer Management" icon="fa-users" href="/customer-management" :active="$active === 'customer-management'" />
 
   <div class="sidebar-section">PTF Module</div>
-  <x-sidebar-item label="Portfolio Manager" icon="fa-briefcase" href="/ptf-portfolio" :active="$active === 'ptf-portfolio'" />
+  <x-layout.sidebar-item label="Portfolio Manager" icon="fa-briefcase" href="/ptf-portfolio" :active="$active === 'ptf-portfolio'" />
 
   <div class="sidebar-section">Reports</div>
-  <x-sidebar-item label="Reports & Export" icon="fa-file-export" href="/reports" :active="$active === 'reports'" />
-  <x-sidebar-item label="Settings" icon="fa-gear" href="/settings" badge="!" :active="$active === 'settings'" />
+  <x-layout.sidebar-item label="Reports & Export" icon="fa-file-export" href="/reports" :active="$active === 'reports'" />
+  <x-layout.sidebar-item label="Settings" icon="fa-gear" href="/settings" badge="!" :active="$active === 'settings'" />
 
   <div class="sidebar-profile">
     <div class="avatar"><span>AA</span><div class="online-dot"></div></div>

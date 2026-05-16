@@ -8,9 +8,9 @@
       {{-- TABLE: ETF Fund List (#etfFundsTable) — export CSV/PDF in header; row "Add" is fund-specific (app.js initEtfFundsDataTable). --}}
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
         <div>
-          <x-page-header title="ETF Fund Explorer" subtitle="Browse, filter, and analyze available exchange-traded funds" />
+          <x-ui.page-header title="ETF Fund Explorer" subtitle="Browse, filter, and analyze available exchange-traded funds" />
         </div>
-        <x-page-action-toolbar
+        <x-ui.page-action-toolbar
           :show-export-csv="true"
           :show-export-pdf="true"
           export-csv-id="btn-etf-funds-export-csv"
@@ -21,9 +21,9 @@
       <div class="card etf-funds-filters-card">
         <div class="card-body">
           
-        <!-- x-etf-funds-filter-form is a custom component that we defined in components/etf-funds-filter-form.blade.php -->
-        <!-- we use the x-etf-funds-filter-form component to display the form -->
-        <x-etf-funds-filter-form />
+        <!-- x-etf.etf-funds-filter-form is a custom component that we defined in components/etf-funds-filter-form.blade.php -->
+        <!-- we use the x-etf.etf-funds-filter-form component to display the form -->
+        <x-etf.etf-funds-filter-form />
         </div>
       </div>
       <div class="card">
@@ -33,7 +33,7 @@
         </div>
 
         {{-- TABLE: ETF Fund List (#etfFundsTable) — body is filled by DataTables (app.js initEtfFundsDataTable). --}}
-        <x-etf-funds-table />
+        <x-etf.etf-funds-table />
       </div>
     </div>
 
