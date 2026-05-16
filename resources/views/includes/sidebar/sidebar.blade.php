@@ -1,7 +1,9 @@
 <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><i class="fa-solid fa-chart-line"></i></div>
-      <div class="sidebar-logo-text">Quant<span>Edge</span></div>
+      <div class="sidebar-logo-icon">
+        <img src="{{ asset('assets/img/company-logo.png') }}" width="36" height="36" decoding="async" alt="MaraWeb logo" />
+      </div>
+      <div class="sidebar-logo-text">Mara<span>Web</span></div>
     </div>
     <div class="sidebar-section">Overview</div>
     <a class="nav-item active" href="dashboard.html"><span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>Dashboard</a>

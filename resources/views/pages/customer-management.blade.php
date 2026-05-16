@@ -4,22 +4,18 @@
 
 @section('content')
     <div class="content page-animate">
+        {{-- TABLE: Customers (#customerTable) — full toolbar: export, bulk upload, add customer (app.js initCustomerManagementDataTable). --}}
         <!-- Header Section -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
                 <x-page-header title="Customer Management" subtitle="Manage your customer database" />
             </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-outline btn-sm" id="btn-export-csv">
-                    <i class="fa-regular fa-circle-check"></i> Export CSV
-                </button>
-                <button class="btn btn-outline btn-sm" id="btn-export-pdf" style="color: #22c55e; border-color: #22c55e;">
-                    <i class="fa-solid fa-file-pdf"></i> Export PDF
-                </button>
-                <button type="button" class="btn btn-blue btn-sm" id="btn-add-customer">
-                    <i class="fa-solid fa-plus"></i> Add Customer
-                </button>
-            </div>
+            <x-page-action-toolbar
+                :show-export-csv="true"
+                :show-export-pdf="true"
+                :show-bulk-upload="true"
+                :show-add-customer="true"
+            />
         </div>
 
         <!-- Filters Section -->
@@ -34,16 +30,33 @@
             </div>
         </div>
 
-        <!-- Datatable Section -->
+        <!-- Datatable Section — #customerTable -->
         <div class="card">
             <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="card-title">All Customers (<span id="customer-count">0</span>)</span>
 
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <!-- Custom Column Dropdown Button -->
-                    <button class="btn btn-outline btn-sm">
-                        Columns <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </button>
+                    <div class="customer-columns-dropdown" id="customer-columns-dropdown">
+                        <button
+                            type="button"
+                            class="btn btn-outline btn-sm"
+                            id="customer-columns-toggle"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            aria-controls="customer-columns-menu"
+                        >
+                            Columns
+                            <i class="fa-solid fa-chevron-down" id="customer-columns-chevron" style="font-size: 10px; margin-left: 5px;"></i>
+                        </button>
+                        <div
+                            class="customer-columns-menu"
+                            id="customer-columns-menu"
+                            role="menu"
+                            hidden
+                        >
+                            <div id="customer-columns-checkboxes"></div>
+                        </div>
+                    </div>
 
                     <!-- Custom Search Bar -->
                     <div class="header-search" style="margin: 0;">
@@ -64,6 +77,7 @@
 
     <x-modals.add-customer-modal />
     <x-modals.edit-customer-modal />
+    <x-modals.bulk-upload-customers-modal />
 
     <script>
         {{-- 

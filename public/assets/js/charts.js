@@ -9,7 +9,7 @@ function getCtx(id) {
   return el ? el : null;
 }
 
-/* ─── PERFORMANCE CHART (dashboard.html) ─────────────────── */
+/* ─── PERFORMANCE CHART — <x-portfolio-performance-chart /> (dashboard) ── */
 function initPerfChart() {
   const ctx = getCtx('perf-chart');
   if (!ctx) return;

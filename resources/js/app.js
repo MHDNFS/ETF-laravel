@@ -25,6 +25,9 @@ import pdfMake from 'pdfmake/build/pdfmake';
 // pdfFonts: The font data that pdfMake needs to draw text inside PDF files
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
+// Tom Select: searchable single-select for all <x-form-select> (.select2-custom) fields
+import TomSelect from 'tom-select';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // WHY: pdfMake needs its font data attached before it can generate PDFs.
 // This line connects the font file we imported above to the pdfMake engine.
@@ -41,6 +44,41 @@ window.JSZip = JSZip;
 window.$ = window.jQuery = $;
 window.DataTable = DataTable;
 
+/**
+ * Initialize Tom Select on every `.select2-custom` wrapper from `<x-form-select>` (search in dropdown).
+ * Opt out per field: `<x-form-select :searchable="false">`.
+ */
+function initSearchableFormSelects(scope = document) {
+    scope.querySelectorAll('.select2-custom').forEach((wrap) => {
+        if (wrap.getAttribute('data-searchable') === 'false') {
+            return;
+        }
+        const el = wrap.querySelector('select');
+        if (!el || el.tomselect) {
+            return;
+        }
+        if (el.disabled && el.options.length === 0) {
+            return;
+        }
+
+        new TomSelect(el, {
+            plugins: ['dropdown_input'],
+            allowEmptyOption: true,
+            create: false,
+            maxOptions: null,
+            /**
+             * Keep dropdown under the control. Do not use `document.body` here: ancestors such as
+             * `.page-animate` use `transform`, which breaks Tom Select’s coordinates and sends the menu
+             * to the wrong corner. Clipping is prevented by `.etf-funds-filters-card { overflow: visible }`
+             * in resources/css/app.css.
+             */
+            dropdownParent: wrap,
+        });
+    });
+}
+
+window.initSearchableFormSelects = initSearchableFormSelects;
+
 function escapeHtml(text) {
     if (text === null || text === undefined) {
         return '';
@@ -50,6 +88,36 @@ function escapeHtml(text) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+/** Sync native <select> value when Tom Select (x-form-select) is active. */
+function setSelectElementValue(selectEl, value) {
+    if (!selectEl) {
+        return;
+    }
+    const str = value != null && value !== '' ? String(value) : '';
+    if (selectEl.tomselect) {
+        selectEl.tomselect.setValue(str, true);
+        return;
+    }
+    selectEl.value = str;
+}
+
+/** Read value from native or Tom Select–enhanced <select>. */
+function getSelectElementValue(selectEl) {
+    if (!selectEl) {
+        return '';
+    }
+    if (selectEl.tomselect) {
+        const v = selectEl.tomselect.getValue();
+        if (Array.isArray(v)) {
+            return v.join(',');
+        }
+
+        return v != null ? String(v) : '';
+    }
+
+    return selectEl.value ?? '';
 }
 
 function recentTransactionTypeHtml(type) {
@@ -87,6 +155,8 @@ function etfFundRatingHtml(stars) {
 
 /** Live reference for customer DataTable (add/edit modals on customer-management page). */
 let customerManagementDataTable = null;
+/** Dashboard `#recentTransactionsTable` — export toolbar targets this instance. */
+let recentTransactionsDataTable = null;
 
 function initCustomerManagementDataTable() {
     const tableEl = document.getElementById('customerTable');
@@ -123,7 +193,7 @@ function initCustomerManagementDataTable() {
         setCustomerField('add-customer-last-transaction', 'N/A');
         const vehiclesEl = document.getElementById('add-customer-vehicles');
         if (vehiclesEl) {
-            vehiclesEl.value = 'No Tracking';
+            setSelectElementValue(vehiclesEl, 'No Tracking');
         }
     }
 
@@ -134,7 +204,7 @@ function initCustomerManagementDataTable() {
         const address = emptyCustomerFieldToNa(document.getElementById('add-customer-address')?.value ?? '');
         const balanceRaw = document.getElementById('add-customer-balance')?.value.trim() ?? '';
         const lastTxRaw = document.getElementById('add-customer-last-transaction')?.value.trim() ?? '';
-        const vehicles = document.getElementById('add-customer-vehicles')?.value ?? 'No Tracking';
+        const vehicles = getSelectElementValue(document.getElementById('add-customer-vehicles')) || 'No Tracking';
 
         return {
             name,
@@ -155,7 +225,7 @@ function initCustomerManagementDataTable() {
         const address = emptyCustomerFieldToNa(document.getElementById('edit-customer-address')?.value ?? '');
         const balanceRaw = document.getElementById('edit-customer-balance')?.value.trim() ?? '';
         const lastTxRaw = document.getElementById('edit-customer-last-transaction')?.value.trim() ?? '';
-        const vehicles = document.getElementById('edit-customer-vehicles')?.value ?? 'No Tracking';
+        const vehicles = getSelectElementValue(document.getElementById('edit-customer-vehicles')) || 'No Tracking';
 
         return {
             id,
@@ -180,7 +250,8 @@ function initCustomerManagementDataTable() {
         const vehiclesEl = document.getElementById('edit-customer-vehicles');
         if (vehiclesEl) {
             const v = row.vehicles || 'No Tracking';
-            vehiclesEl.value = [...vehiclesEl.options].some((o) => o.value === v) ? v : 'No Tracking';
+            const use = [...vehiclesEl.options].some((o) => o.value === v) ? v : 'No Tracking';
+            setSelectElementValue(vehiclesEl, use);
         }
     }
 
@@ -212,6 +283,101 @@ function initCustomerManagementDataTable() {
         if (countEl) {
             countEl.textContent = String(tableApi.rows().count());
         }
+    }
+
+    /**
+     * Build the "Columns" dropdown: toggle DataTables visibility for every column except the last (Actions).
+     */
+    function setupCustomerTableColumnMenu(tableApi, tableElement) {
+        const wrap = document.getElementById('customer-columns-dropdown');
+        const toggle = document.getElementById('customer-columns-toggle');
+        const menu = document.getElementById('customer-columns-menu');
+        const list = document.getElementById('customer-columns-checkboxes');
+        const chevron = document.getElementById('customer-columns-chevron');
+
+        if (!wrap || !toggle || !menu || !list || !tableApi || !tableElement) {
+            return;
+        }
+
+        const headerCells = tableElement.querySelectorAll('thead th');
+        const colCount = headerCells.length;
+        if (colCount < 2) {
+            return;
+        }
+
+        const lastDataColIndex = colCount - 2;
+
+        function columnLabel(idx) {
+            const cell = headerCells[idx];
+            const raw = cell?.textContent ?? '';
+
+            return raw.replace(/\s+/g, ' ').trim() || `Column ${idx}`;
+        }
+
+        list.innerHTML = '';
+
+        for (let i = 0; i <= lastDataColIndex; i++) {
+            const title = columnLabel(i);
+            const row = document.createElement('div');
+            row.className = 'customer-columns-menu__row';
+            row.setAttribute('role', 'menuitemcheckbox');
+
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.id = `customer-col-vis-${i}`;
+            cb.checked = tableApi.column(i).visible();
+
+            const label = document.createElement('label');
+            label.htmlFor = cb.id;
+            label.textContent = title;
+
+            cb.addEventListener('change', () => {
+                if (!cb.checked) {
+                    let otherChecked = 0;
+                    for (let j = 0; j <= lastDataColIndex; j++) {
+                        const el = list.querySelector(`#customer-col-vis-${j}`);
+                        if (el && el !== cb && el.checked) {
+                            otherChecked++;
+                        }
+                    }
+                    if (otherChecked === 0) {
+                        cb.checked = true;
+                        showToast('info', 'Columns', 'Keep at least one column visible.');
+                        return;
+                    }
+                }
+                tableApi.column(i).visible(cb.checked);
+            });
+
+            row.appendChild(cb);
+            row.appendChild(label);
+            list.appendChild(row);
+        }
+
+        function setOpen(open) {
+            menu.hidden = !open;
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (chevron) {
+                chevron.classList.toggle('fa-chevron-up', open);
+                chevron.classList.toggle('fa-chevron-down', !open);
+            }
+        }
+
+        setOpen(false);
+
+        toggle.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            setOpen(menu.hidden);
+        });
+
+        document.addEventListener('click', (ev) => {
+            if (menu.hidden) {
+                return;
+            }
+            if (!wrap.contains(ev.target)) {
+                setOpen(false);
+            }
+        });
     }
 
     const mockCustomerData = [
@@ -297,7 +463,9 @@ function initCustomerManagementDataTable() {
             }
         },
         initComplete: function () {
-            refreshCustomerCountBadge(this.api());
+            const api = this.api();
+            refreshCustomerCountBadge(api);
+            setupCustomerTableColumnMenu(api, tableEl);
         }
     });
 
@@ -407,6 +575,132 @@ function initCustomerManagementDataTable() {
             table.button('.dt-btn-pdf').trigger();
         });
     }
+
+    const bulkUploadBtn = document.getElementById('btn-bulk-upload-customers');
+    const bulkModalId = 'bulk-upload-customers-modal';
+    const bulkFileInput = document.getElementById('bulk-upload-file-input');
+    const bulkFolderInput = document.getElementById('bulk-upload-folder-input');
+    const bulkPickFiles = document.getElementById('bulk-upload-pick-files');
+    const bulkPickFolder = document.getElementById('bulk-upload-pick-folder');
+    const bulkListEl = document.getElementById('bulk-upload-file-list');
+    const bulkCountEl = document.getElementById('bulk-upload-count');
+    const bulkEmptyHint = document.getElementById('bulk-upload-empty-hint');
+    const bulkSubmit = document.getElementById('bulk-upload-submit');
+    const bulkClearBtn = document.getElementById('bulk-upload-clear');
+
+    /** @type {File[]} */
+    let bulkFiles = [];
+
+    function bulkFileKey(f) {
+        const rel = f.webkitRelativePath || f.name;
+
+        return `${rel}|${f.size}|${f.lastModified}`;
+    }
+
+    function renderBulkList() {
+        if (!bulkListEl || !bulkCountEl || !bulkEmptyHint || !bulkSubmit) {
+            return;
+        }
+        bulkCountEl.textContent = String(bulkFiles.length);
+        bulkEmptyHint.style.display = bulkFiles.length ? 'none' : 'block';
+        if (bulkClearBtn) {
+            bulkClearBtn.style.display = bulkFiles.length ? 'inline-flex' : 'none';
+        }
+        bulkListEl.innerHTML = '';
+        bulkFiles.slice(0, 80).forEach((f) => {
+            const li = document.createElement('li');
+            const label = f.webkitRelativePath || f.name;
+            li.textContent = `${label} (${(f.size / 1024).toFixed(1)} KB)`;
+            bulkListEl.appendChild(li);
+        });
+        if (bulkFiles.length > 80) {
+            const li = document.createElement('li');
+            li.style.color = 'var(--text3)';
+            li.textContent = `… and ${bulkFiles.length - 80} more`;
+            bulkListEl.appendChild(li);
+        }
+        bulkSubmit.disabled = bulkFiles.length === 0;
+    }
+
+    function addBulkFiles(fileList) {
+        const seen = new Set(bulkFiles.map(bulkFileKey));
+        for (let i = 0; i < fileList.length; i++) {
+            const f = fileList.item(i);
+            if (!f) {
+                continue;
+            }
+            const k = bulkFileKey(f);
+            if (!seen.has(k)) {
+                seen.add(k);
+                bulkFiles.push(f);
+            }
+        }
+        renderBulkList();
+    }
+
+    function resetBulkUploadUi() {
+        bulkFiles = [];
+        if (bulkFileInput) {
+            bulkFileInput.value = '';
+        }
+        if (bulkFolderInput) {
+            bulkFolderInput.value = '';
+        }
+        renderBulkList();
+    }
+
+    if (bulkUploadBtn) {
+        bulkUploadBtn.addEventListener('click', () => {
+            resetBulkUploadUi();
+            showModal(bulkModalId);
+        });
+    }
+
+    if (bulkPickFiles && bulkFileInput) {
+        bulkPickFiles.addEventListener('click', () => bulkFileInput.click());
+    }
+    if (bulkPickFolder && bulkFolderInput) {
+        bulkPickFolder.addEventListener('click', () => bulkFolderInput.click());
+    }
+
+    if (bulkFileInput) {
+        bulkFileInput.addEventListener('change', () => {
+            if (bulkFileInput.files?.length) {
+                addBulkFiles(bulkFileInput.files);
+            }
+            bulkFileInput.value = '';
+        });
+    }
+    if (bulkFolderInput) {
+        bulkFolderInput.addEventListener('change', () => {
+            if (bulkFolderInput.files?.length) {
+                addBulkFiles(bulkFolderInput.files);
+            }
+            bulkFolderInput.value = '';
+        });
+    }
+
+    if (bulkClearBtn) {
+        bulkClearBtn.addEventListener('click', () => {
+            bulkFiles = [];
+            renderBulkList();
+        });
+    }
+
+    if (bulkSubmit) {
+        bulkSubmit.addEventListener('click', () => {
+            if (!bulkFiles.length) {
+                return;
+            }
+            closeModal(bulkModalId);
+            showToast(
+                'success',
+                'Upload queued',
+                `Prepared ${bulkFiles.length} file(s) for upload (demo — add a Laravel route and FormData.post() to store or import).`
+            );
+            resetBulkUploadUi();
+        });
+    }
 }
 
 function initRecentTransactionsDataTable() {
@@ -427,7 +721,7 @@ function initRecentTransactionsDataTable() {
         { date: '2026-04-28', fundName: 'Tactical Bond PTF', fundTicker: 'TBP-2', type: 'PTF', units: 500, price: '$102.30', total: '$51,150', status: 'settled' },
     ];
 
-    new DataTable('#recentTransactionsTable', {
+    const recentTxTable = new DataTable('#recentTransactionsTable', {
         data: mockRecentTransactions,
         autoWidth: false,
         columns: [
@@ -505,6 +799,22 @@ function initRecentTransactionsDataTable() {
             },
         ],
         dom: 'rt<"dt-custom-footer"ip>',
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                text: 'Export CSV',
+                className: 'dt-recent-tx-csv',
+                exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'Export PDF',
+                className: 'dt-recent-tx-pdf',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
+            },
+        ],
         ordering: true,
         paging: true,
         pageLength: 10,
@@ -517,6 +827,21 @@ function initRecentTransactionsDataTable() {
             },
         },
     });
+
+    recentTransactionsDataTable = recentTxTable;
+
+    const recentCsvBtn = document.getElementById('btn-recent-tx-export-csv');
+    if (recentCsvBtn) {
+        recentCsvBtn.addEventListener('click', function () {
+            recentTxTable.button('.dt-recent-tx-csv').trigger();
+        });
+    }
+    const recentPdfBtn = document.getElementById('btn-recent-tx-export-pdf');
+    if (recentPdfBtn) {
+        recentPdfBtn.addEventListener('click', function () {
+            recentTxTable.button('.dt-recent-tx-pdf').trigger();
+        });
+    }
 }
 
 function initEtfFundsDataTable() {
@@ -532,7 +857,7 @@ function initEtfFundsDataTable() {
     const rows =
         typeof globalThis.FUNDS !== 'undefined' && Array.isArray(globalThis.FUNDS) ? globalThis.FUNDS : [];
 
-    new DataTable('#etfFundsTable', {
+    const etfFundsTable = new DataTable('#etfFundsTable', {
         data: rows,
         autoWidth: false,
         order: [[1, 'asc']],
@@ -661,6 +986,22 @@ function initEtfFundsDataTable() {
             },
         ],
         dom: 'rt<"dt-custom-footer"ip>',
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                text: 'Export CSV',
+                className: 'dt-etf-funds-csv',
+                exportOptions: { columns: [1, 2, 3, 4, 5, 6, 7, 8] },
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'Export PDF',
+                className: 'dt-etf-funds-pdf',
+                orientation: 'landscape',
+                pageSize: 'A4',
+                exportOptions: { columns: [1, 2, 3, 4, 5, 6, 7, 8] },
+            },
+        ],
         ordering: true,
         paging: true,
         pageLength: 10,
@@ -680,10 +1021,192 @@ function initEtfFundsDataTable() {
             }
         },
     });
+
+    const etfCsvBtn = document.getElementById('btn-etf-funds-export-csv');
+    if (etfCsvBtn) {
+        etfCsvBtn.addEventListener('click', function () {
+            etfFundsTable.button('.dt-etf-funds-csv').trigger();
+        });
+    }
+    const etfPdfBtn = document.getElementById('btn-etf-funds-export-pdf');
+    if (etfPdfBtn) {
+        etfPdfBtn.addEventListener('click', function () {
+            etfFundsTable.button('.dt-etf-funds-pdf').trigger();
+        });
+    }
+}
+
+/**
+ * Portfolio Manager (PTF) — Holdings list. Same DataTables pattern as recent transactions / ETF funds.
+ */
+function initPtfPortfolioHoldingsDataTable() {
+    const el = document.getElementById('ptfHoldingsTable');
+    if (!el) {
+        return;
+    }
+
+    if (el.classList.contains('dataTable')) {
+        return;
+    }
+
+    /** @typedef {{ holdingName: string; ticker: string; type: 'ETF' | 'PTF'; units: string; avgCost: string; currentPrice: string; marketValue: string; pnlHtml: string; pnlTone: 'up' | 'down'; weightPctLabel: string; weightBarPct: number; weightBarCssVar: string; }} HoldingRow */
+
+    /** @type {HoldingRow[]} */
+    const mockHoldings = [
+        {
+            holdingName: 'Vanguard S&P 500',
+            ticker: 'VOO',
+            type: 'ETF',
+            units: '120',
+            avgCost: '$488.20',
+            currentPrice: '$512.40',
+            marketValue: '$61,488',
+            pnlHtml: '+$2,904',
+            pnlTone: 'up',
+            weightPctLabel: '32%',
+            weightBarPct: 64,
+            weightBarCssVar: 'var(--accent)',
+        },
+        {
+            holdingName: 'Custom Growth PTF',
+            ticker: 'CGF-A',
+            type: 'PTF',
+            units: '200',
+            avgCost: '$82.50',
+            currentPrice: '$88.75',
+            marketValue: '$17,750',
+            pnlHtml: '+$1,250',
+            pnlTone: 'up',
+            weightPctLabel: '18%',
+            weightBarPct: 36,
+            weightBarCssVar: 'var(--accent3)',
+        },
+        {
+            holdingName: 'Tactical Bond PTF',
+            ticker: 'TBP-2',
+            type: 'PTF',
+            units: '500',
+            avgCost: '$105.10',
+            currentPrice: '$102.30',
+            marketValue: '$51,150',
+            pnlHtml: '-$1,400',
+            pnlTone: 'down',
+            weightPctLabel: '26%',
+            weightBarPct: 52,
+            weightBarCssVar: 'var(--accent2)',
+        },
+    ];
+
+    new DataTable('#ptfHoldingsTable', {
+        data: mockHoldings,
+        autoWidth: false,
+        columns: [
+            {
+                data: null,
+                title: 'Holding',
+                type: 'string',
+                width: '18%',
+                render: function (_d, _t, row) {
+                    return `<div class="fund-name">${escapeHtml(row.holdingName)}</div><div class="fund-ticker">${escapeHtml(row.ticker)}</div>`;
+                },
+            },
+            {
+                data: 'type',
+                title: 'Type',
+                type: 'string',
+                width: '8%',
+                render: function (data) {
+                    return recentTransactionTypeHtml(data);
+                },
+            },
+            {
+                data: 'units',
+                title: 'Units',
+                type: 'string',
+                width: '7%',
+                render: function (data) {
+                    return `<span class="td-mono">${escapeHtml(data)}</span>`;
+                },
+            },
+            {
+                data: 'avgCost',
+                title: 'Avg Cost',
+                type: 'string',
+                width: '10%',
+                render: function (data) {
+                    return `<span class="td-mono">${escapeHtml(data)}</span>`;
+                },
+            },
+            {
+                data: 'currentPrice',
+                title: 'Current Price',
+                type: 'string',
+                width: '11%',
+                render: function (data) {
+                    return `<span class="td-mono">${escapeHtml(data)}</span>`;
+                },
+            },
+            {
+                data: 'marketValue',
+                title: 'Market Value',
+                type: 'string',
+                width: '11%',
+                render: function (data) {
+                    return `<span class="td-mono" style="font-weight:500">${escapeHtml(data)}</span>`;
+                },
+            },
+            {
+                data: 'pnlHtml',
+                title: 'P&L',
+                type: 'string',
+                width: '10%',
+                createdCell: function (td, _cellData, rowData) {
+                    td.classList.add(rowData.pnlTone === 'up' ? 'td-up' : 'td-down');
+                },
+                render: function (data) {
+                    return escapeHtml(data);
+                },
+            },
+            {
+                data: null,
+                title: 'Weight',
+                type: 'string',
+                width: '12%',
+                orderable: false,
+                render: function (_d, _t, row) {
+                    return `<div style="display:flex;align-items:center;gap:8px"><span class="td-mono">${escapeHtml(row.weightPctLabel)}</span><div class="progress-bar" style="width:60px"><div class="progress-fill" style="width:${row.weightBarPct}%;background:${row.weightBarCssVar}"></div></div></div>`;
+                },
+            },
+            {
+                data: null,
+                title: 'Action',
+                width: '13%',
+                orderable: false,
+                searchable: false,
+                render: function () {
+                    return '<div style="display:flex;gap:4px"><button type="button" class="btn btn-outline btn-sm">Buy</button><button type="button" class="btn btn-danger btn-sm">Sell</button></div>';
+                },
+            },
+        ],
+        dom: 'rt<"dt-custom-footer"ip>',
+        ordering: true,
+        paging: true,
+        pageLength: 10,
+        language: {
+            info: 'Showing _START_ to _END_ of _TOTAL_ holdings',
+            infoEmpty: 'No holdings found',
+            paginate: {
+                previous: '&lsaquo;',
+                next: '&rsaquo;',
+            },
+        },
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    initSearchableFormSelects();
     initCustomerManagementDataTable();
     initRecentTransactionsDataTable();
     initEtfFundsDataTable();
+    initPtfPortfolioHoldingsDataTable();
 });

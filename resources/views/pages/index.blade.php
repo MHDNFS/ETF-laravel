@@ -23,23 +23,9 @@
 
 
 
-    <!-- Charts Row -->
+    {{-- Charts row: portfolio performance component + asset allocation card. --}}
     <div class="grid-6040">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Portfolio Performance</span>
-          <select
-            style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;color:var(--text2);font-size:12px;outline:none;cursor:pointer">
-            <option>1 Month</option>
-            <option>3 Months</option>
-            <option selected>1 Year</option>
-            <option>3 Years</option>
-          </select>
-        </div>
-        <div class="card-body">
-          <div class="chart-container"><canvas id="perf-chart"></canvas></div>
-        </div>
-      </div>
+      <x-portfolio-performance-chart />
       <div class="card">
         <div class="card-header">
           <span class="card-title">Asset Allocation</span>
@@ -65,12 +51,20 @@
 
 
 
-    <!-- Transactions Table -->
+    <!-- TABLE: Recent Transactions (#recentTransactionsTable) — DataTables + export CSV/PDF (see app.js initRecentTransactionsDataTable). -->
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <span class="card-title">Recent Transactions</span>
-        <button class="btn btn-blue btn-sm" onclick="showModal('add-trade-modal')"><i class="fa-solid fa-plus"></i> Add
-          Trade</button>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <x-page-action-toolbar
+            :show-export-csv="true"
+            :show-export-pdf="true"
+            export-csv-id="btn-recent-tx-export-csv"
+            export-pdf-id="btn-recent-tx-export-pdf"
+          >
+            <button type="button" class="btn btn-blue btn-sm" onclick="showModal('add-trade-modal')"><i class="fa-solid fa-plus"></i> Add Trade</button>
+          </x-page-action-toolbar>
+        </div>
       </div>
       <div class="table-wrap">
         {{-- DataTables builds <thead> from columns[].title (see resources/js/app.js). A static <thead> here

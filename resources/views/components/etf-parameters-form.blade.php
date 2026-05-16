@@ -47,8 +47,8 @@
 </div>
 
 <div class="form-group">
-    <x-form-label>Dividend Reinvestment</x-form-label>
-    <x-form-select>
+    <x-form-label for="etf-dividend-reinvest">Dividend Reinvestment</x-form-label>
+    <x-form-select id="etf-dividend-reinvest" name="dividend_reinvestment">
         <option value="Reinvest Dividends (DRIP)" selected>Reinvest Dividends (DRIP)</option>
         <option value="Cash Payout">Cash Payout</option>
         <option value="No Dividends">No Dividends</option>

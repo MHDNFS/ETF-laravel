@@ -9,8 +9,17 @@
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="sidebar-logo-icon"><i class="fa-solid fa-chart-line"></i></div>
-    <div class="sidebar-logo-text">Quant<span>Edge</span></div>
+    {{-- Logo: public/assets/img/company-logo.png (icon only; wordmark is HTML below). --}}
+    <div class="sidebar-logo-icon">
+      <img
+        src="{{ asset('assets/img/company-logo.png') }}"
+        width="36"
+        height="36"
+        decoding="async"
+        alt="MaraWeb logo"
+      />
+    </div>
+    <div class="sidebar-logo-text">Mara<span>Web</span></div>
   </div>
 
   <div class="sidebar-section">Overview</div>

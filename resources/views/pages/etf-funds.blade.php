@@ -3,10 +3,22 @@
 @section('header_title', 'ETF Fund Explorer')
 @section('content')
 
-    <div class="content page-animate">
+    <div class="content page-animate etf-funds-page">
 
-      <x-page-header title="ETF Fund Explorer" subtitle="Browse, filter, and analyze available exchange-traded funds" />
-      <div class="card">
+      {{-- TABLE: ETF Fund List (#etfFundsTable) — export CSV/PDF in header; row "Add" is fund-specific (app.js initEtfFundsDataTable). --}}
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
+        <div>
+          <x-page-header title="ETF Fund Explorer" subtitle="Browse, filter, and analyze available exchange-traded funds" />
+        </div>
+        <x-page-action-toolbar
+          :show-export-csv="true"
+          :show-export-pdf="true"
+          export-csv-id="btn-etf-funds-export-csv"
+          export-pdf-id="btn-etf-funds-export-pdf"
+        />
+      </div>
+      {{-- overflow: visible so Tom Select (.select2-custom) dropdowns are not clipped by .card { overflow: hidden } --}}
+      <div class="card etf-funds-filters-card">
         <div class="card-body">
           
         <!-- x-etf-funds-filter-form is a custom component that we defined in components/etf-funds-filter-form.blade.php -->
@@ -20,8 +32,7 @@
           <span class="badge badge-blue" id="etf-funds-count">12 Funds</span>
         </div>
 
-        <!-- this is the table that displays the funds
-        this is a custom component that we defined in components/etf-funds-table.blade.php -->
+        {{-- TABLE: ETF Fund List (#etfFundsTable) — body is filled by DataTables (app.js initEtfFundsDataTable). --}}
         <x-etf-funds-table />
       </div>
     </div>

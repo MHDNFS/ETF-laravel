@@ -3,6 +3,8 @@
 /* Import DataTables styling */
 @import 'datatables.net-dt/css/dataTables.dataTables.css';
 @import 'datatables.net-buttons-dt/css/buttons.dataTables.css';
+/* Searchable selects (Tom Select) — used by x-form-select / .select2-custom */
+@import 'tom-select/dist/css/tom-select.default.css';
 
 /* Scan Laravel pagination Blade files for Tailwind classes. */
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -19,6 +21,21 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* ETF Fund Explorer — filter card only: Tom Select dropdowns escape parent (global .card { overflow: hidden }). */
+.card.etf-funds-filters-card,
+.card.etf-funds-filters-card > .card-body {
+    overflow: visible !important;
+}
+.card.etf-funds-filters-card .form-row,
+.card.etf-funds-filters-card .form-group {
+    overflow: visible;
+}
+
+/* ETF Fund Explorer — main content column: flex children can clip overflow; allow menus to extend. */
+.etf-funds-page {
+    overflow: visible;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -179,6 +196,34 @@ table.dataTable#etfFundsTable thead > tr > th .dt-column-order {
     flex-shrink: 0;
 }
 
+/* PTF Portfolio — Holdings DataTable (sort header layout aligned with dashboard / ETFs) */
+.table-wrap > #ptfHoldingsTable.dataTable {
+    min-width: 1100px;
+    table-layout: fixed;
+}
+
+table.dataTable#ptfHoldingsTable thead > tr > th.dt-type-numeric div.dt-column-header,
+table.dataTable#ptfHoldingsTable thead > tr > th.dt-type-date div.dt-column-header {
+    flex-direction: row;
+}
+
+table.dataTable#ptfHoldingsTable thead > tr > th div.dt-column-header {
+    justify-content: flex-start;
+    gap: 0.35rem;
+}
+
+table.dataTable#ptfHoldingsTable thead > tr > th .dt-column-title {
+    flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table.dataTable#ptfHoldingsTable thead > tr > th .dt-column-order {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 /* Fund list: headers and body cells must share the same horizontal alignment + padding.
    DataTables adds dt-type-numeric / dt-type-date with text-align:right on th/td — that
    makes labels sit differently from cell content. Force left + matched padding for this table only. */
@@ -242,4 +287,217 @@ table.dataTable#etfFundsTable > tbody > tr > td {
 #add-trade-modal .trade-control > .select2-custom select {
     height: 40px !important;
     margin: 0 !important;
+}
+
+/* Add / Edit Customer — shorter form (tighter gaps + 36px controls like compact trade rows) */
+#add-customer-modal .modal-header,
+#edit-customer-modal .modal-header {
+    padding: 14px 20px 10px;
+}
+#add-customer-modal .modal-body,
+#edit-customer-modal .modal-body {
+    padding: 10px 20px 8px;
+}
+#add-customer-modal .modal-footer,
+#edit-customer-modal .modal-footer {
+    padding: 8px 20px 12px;
+}
+#add-customer-modal .trade-form,
+#edit-customer-modal .trade-form {
+    gap: 6px;
+}
+#add-customer-modal .trade-row2,
+#edit-customer-modal .trade-row2 {
+    gap: 8px;
+}
+#add-customer-modal .trade-field,
+#edit-customer-modal .trade-field {
+    grid-template-rows: auto 36px;
+    row-gap: 2px;
+}
+#add-customer-modal .trade-field > .form-label,
+#edit-customer-modal .trade-field > .form-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text2, #b0bac5);
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+    line-height: 1.15 !important;
+}
+#add-customer-modal .trade-control,
+#edit-customer-modal .trade-control {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+}
+#add-customer-modal .trade-control > .form-control,
+#edit-customer-modal .trade-control > .form-control {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 6px 10px !important;
+    font-size: 13px;
+    line-height: 1.2;
+}
+#add-customer-modal .trade-control > .select2-custom,
+#edit-customer-modal .trade-control > .select2-custom {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+}
+#add-customer-modal .trade-control > .select2-custom .ts-wrapper,
+#edit-customer-modal .trade-control > .select2-custom .ts-wrapper {
+    height: 100%;
+}
+#add-customer-modal .trade-control > .select2-custom .ts-control,
+#edit-customer-modal .trade-control > .select2-custom .ts-control {
+    min-height: 36px !important;
+    height: 36px !important;
+    padding: 6px 28px 6px 10px !important;
+}
+
+/* Customer Management — Columns visibility dropdown (DataTables column().visible()) */
+.customer-columns-dropdown {
+    position: relative;
+}
+.customer-columns-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 6px;
+    min-width: 220px;
+    padding: 6px 0;
+    z-index: 30;
+    background: var(--bg2, #0f1629);
+    border: 1px solid var(--border2, rgba(99, 142, 255, 0.22));
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.customer-columns-menu__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text2, #b0bac5);
+}
+.customer-columns-menu__row:hover {
+    background: var(--bg3, #141d35);
+}
+.customer-columns-menu__row input[type='checkbox'] {
+    accent-color: var(--accent, #4f8cff);
+    cursor: pointer;
+}
+.customer-columns-menu__row label {
+    cursor: pointer;
+    flex: 1;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ─── Tom Select inside .select2-custom (x-form-select) — match dashboard tokens ─── */
+.select2-custom {
+    position: relative;
+    width: 100%;
+}
+/* Native chevron from legacy CSS — Tom Select draws its own control */
+.select2-custom:has(.ts-wrapper)::after {
+    content: none !important;
+    display: none !important;
+}
+.select2-custom .ts-wrapper {
+    width: 100%;
+}
+.select2-custom .ts-control {
+    /* Tom Select default `.full .ts-control { background: #fff }` — force theme match (same as .form-control) */
+    background: var(--bg3, #141d35) !important;
+    background-color: var(--bg3, #141d35) !important;
+    border: 1px solid var(--border2, rgba(99, 142, 255, 0.22));
+    border-radius: 8px;
+    padding: 8px 32px 8px 12px;
+    min-height: 40px;
+    box-sizing: border-box;
+    box-shadow: none;
+    color: var(--text, #e8ecf4);
+    font-family: var(--font, 'DM Sans', system-ui, sans-serif);
+    font-size: 13px;
+}
+.select2-custom .ts-wrapper.full .ts-control,
+.select2-custom .ts-wrapper.single .ts-control,
+.select2-custom .ts-wrapper.disabled .ts-control {
+    background: var(--bg3, #141d35) !important;
+    background-color: var(--bg3, #141d35) !important;
+}
+.select2-custom .ts-wrapper.disabled .ts-control {
+    opacity: 0.55;
+}
+.select2-custom .ts-wrapper .ts-control .item {
+    color: var(--text, #e8ecf4);
+}
+.select2-custom .ts-wrapper.plugin-dropdown_input.focus.dropdown-active .ts-control {
+    border-color: var(--border2, rgba(99, 142, 255, 0.22));
+    box-shadow: none;
+}
+.select2-custom .ts-wrapper.plugin-dropdown_input.dropdown-active .ts-control {
+    border-color: var(--accent, #4f8cff);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.12);
+}
+.select2-custom .ts-wrapper.focus .ts-control,
+.select2-custom .ts-wrapper.dropdown-active .ts-control {
+    border-color: var(--accent, #4f8cff);
+    box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.12);
+}
+.select2-custom .ts-control input {
+    color: var(--text, #e8ecf4) !important;
+}
+.select2-custom .ts-dropdown {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    left: 0 !important;
+    right: auto !important;
+    background: var(--bg2, #0f1629);
+    border: 1px solid var(--border2, rgba(99, 142, 255, 0.22));
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    z-index: 10050;
+}
+.select2-custom .ts-dropdown .dropdown-input {
+    width: calc(100% - 16px);
+    max-width: 100%;
+    box-sizing: border-box;
+    background: var(--bg3, #141d35);
+    border: 1px solid var(--border2, rgba(99, 142, 255, 0.22));
+    border-radius: 6px;
+    color: var(--text, #e8ecf4);
+    margin: 8px;
+    padding: 8px 10px;
+}
+.select2-custom .ts-dropdown .option {
+    color: var(--text2, #b0bac5);
+    padding: 8px 12px;
+}
+.select2-custom .ts-dropdown .option.active {
+    background: var(--bg3, #141d35);
+    color: var(--text, #e8ecf4);
+}
+html[data-theme='light'] .select2-custom .ts-control,
+html[data-theme='light'] .select2-custom .ts-wrapper.full .ts-control,
+html[data-theme='light'] .select2-custom .ts-wrapper.single .ts-control {
+    background: var(--bg3, #dce3f2) !important;
+    background-color: var(--bg3, #dce3f2) !important;
+    color: var(--text, #0f1629);
+}
+html[data-theme='light'] .select2-custom .ts-wrapper .ts-control .item {
+    color: var(--text, #0f1629);
+}
+html[data-theme='light'] .select2-custom .ts-control input {
+    color: var(--text, #0f1629) !important;
+}
+html[data-theme='light'] .select2-custom .ts-dropdown {
+    background: var(--bg2, #ffffff);
+}
+html[data-theme='light'] .select2-custom .ts-dropdown .option.active {
+    background: var(--bg3, #dce3f2);
 }
