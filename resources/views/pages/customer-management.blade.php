@@ -3,39 +3,36 @@
 @section('header_title', 'Customer Management')
 
 @section('content')
-    <div class="content page-animate">
-        {{-- TABLE: Customers (#customerTable) — full toolbar: export, bulk upload, add customer (app.js initCustomerManagementDataTable). --}}
-        <!-- Header Section -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <div class="content page-animate customer-management-page">
+
+        <header class="customer-mgmt-head page-head-row">
             <div>
                 <x-ui.page-header title="Customer Management" subtitle="Manage your customer database" />
             </div>
             <x-ui.page-action-toolbar
+                class="customer-mgmt-toolbar"
                 :show-export-csv="true"
                 :show-export-pdf="true"
                 :show-bulk-upload="true"
                 :show-add-customer="true"
             />
-        </div>
+        </header>
 
-        <!-- Filters Section -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header" style="cursor: pointer;" onclick="toggleFilters()">
+        <section class="card customer-filters-card" aria-label="Customer filters">
+            <div class="card-header customer-filters-toggle" role="button" tabindex="0" onclick="toggleFilters()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFilters();}">
                 <span class="card-title"><i class="fa-solid fa-filter"></i> Filters</span>
-                <i class="fa-solid fa-chevron-down" id="filter-icon"></i>
+                <i class="fa-solid fa-chevron-down" id="filter-icon" aria-hidden="true"></i>
             </div>
-            <div class="card-body" id="filter-body" style="display: none;">
-                <!-- We will put dropdowns here later -->
-                <p style="color: var(--text3); font-size: 13px;">Advanced filter options will appear here.</p>
+            <div class="card-body customer-filters-body" id="filter-body" hidden>
+                <p class="customer-filters-placeholder">Advanced filter options will appear here.</p>
             </div>
-        </div>
+        </section>
 
-        <!-- Datatable Section — #customerTable -->
-        <div class="card">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <section class="card customer-table-card" aria-label="Customer list">
+            <div class="card-header customer-table-header">
                 <span class="card-title">All Customers (<span id="customer-count">0</span>)</span>
 
-                <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="card-header-actions customer-table-toolbar">
                     <div class="customer-columns-dropdown" id="customer-columns-dropdown">
                         <button
                             type="button"
@@ -46,7 +43,7 @@
                             aria-controls="customer-columns-menu"
                         >
                             Columns
-                            <i class="fa-solid fa-chevron-down" id="customer-columns-chevron" style="font-size: 10px; margin-left: 5px;"></i>
+                            <i class="fa-solid fa-chevron-down customer-columns-chevron" id="customer-columns-chevron" aria-hidden="true"></i>
                         </button>
                         <div
                             class="customer-columns-menu"
@@ -58,49 +55,43 @@
                         </div>
                     </div>
 
-                    <!-- Custom Search Bar -->
-                    <div class="header-search" style="margin: 0;">
+                    <div class="header-search customer-table-search">
                         <i class="fa-solid fa-magnifying-glass si"></i>
-                        <input type="text" id="custom-searchBox" placeholder="Search..." style="width: 200px;">
+                        <input type="search" id="custom-searchBox" placeholder="Search customers…" aria-label="Search customers">
                     </div>
                 </div>
             </div>
 
-            <div class="table-wrap">
-                {{-- DataTables builds <thead> from columns[].title — avoid a static <thead> row (prevents doubled / misaligned sort UI) --}}
+            <div class="table-wrap table-wrap--scroll-hint">
                 <table id="customerTable" style="width: 100%;">
                     <tbody></tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </div>
 
     <x-modals.add-customer-modal />
     <x-modals.edit-customer-modal />
     <x-modals.bulk-upload-customers-modal />
 
+    @push('scripts')
     <script>
-        {{-- 
-            WHY is this script here and not in app.js?
-            This toggleFilters() function is called via onclick="toggleFilters()" 
-            directly in the HTML above. onclick="" attributes need the function 
-            to be in the GLOBAL scope. app.js runs as an ES module (private scope),
-            so functions defined there are NOT accessible via onclick="".
-            Simple UI helper functions like this one BELONG in the Blade file.
-        --}}
         function toggleFilters() {
             const body = document.getElementById('filter-body');
             const icon = document.getElementById('filter-icon');
-
-            // If hidden → show it and flip the icon to point UP
-            if (body.style.display === 'none') {
-                body.style.display = 'block';
+            if (!body || !icon) {
+                return;
+            }
+            const open = body.hasAttribute('hidden');
+            if (open) {
+                body.removeAttribute('hidden');
                 icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
             } else {
-                // If visible → hide it and flip the icon back DOWN
-                body.style.display = 'none';
+                body.setAttribute('hidden', '');
                 icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
             }
         }
     </script>
+    @endpush
 @endsection
+

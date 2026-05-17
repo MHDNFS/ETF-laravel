@@ -11,16 +11,12 @@
 
   CHART LOGIC (keep in sync)
   - public/assets/js/charts.js → initPerfChart() targets #{{ $canvasId }}
-  - layouts/layout.blade.php loads Chart.js + charts.js and calls initPerfChart() on DOMContentLoaded
+  - pages/index.blade.php @push('scripts') calls initPerfChart() on DOMContentLoaded
 --}}
 <div class="card">
   <div class="card-header">
     <span class="card-title">{{ $title }}</span>
-    <select
-      class="portfolio-performance-period"
-      aria-label="Performance period"
-      style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;color:var(--text2);font-size:12px;outline:none;cursor:pointer"
-    >
+    <select class="chart-period-select" aria-label="Performance period">
       <option>1 Month</option>
       <option>3 Months</option>
       <option selected>1 Year</option>

@@ -32,4 +32,13 @@
       </div>
     </div>
 
+@push('scripts')
+<script src="{{ asset('assets/js/calculators.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof initETFProjChart === 'function') initETFProjChart();
+  });
+</script>
+@endpush
+
 @endsection

@@ -158,6 +158,126 @@ let customerManagementDataTable = null;
 /** Dashboard `#recentTransactionsTable` — export toolbar targets this instance. */
 let recentTransactionsDataTable = null;
 
+const DASHBOARD_TX_MOBILE_BP = 700;
+
+/** Hide Units + Price on dashboard transactions table when viewport is narrow. */
+function applyDashboardRecentTxColumns(table) {
+    if (!table || !document.getElementById('recentTransactionsTable')) {
+        return;
+    }
+
+    const compact = window.innerWidth < DASHBOARD_TX_MOBILE_BP;
+    table.column(3).visible(!compact);
+    table.column(4).visible(!compact);
+    table.columns.adjust().draw(false);
+}
+
+let dashboardRecentTxResizeTimer = null;
+
+function bindDashboardRecentTxResize(table) {
+    window.addEventListener('resize', function () {
+        clearTimeout(dashboardRecentTxResizeTimer);
+        dashboardRecentTxResizeTimer = setTimeout(function () {
+            applyDashboardRecentTxColumns(table);
+        }, 150);
+    });
+}
+
+const ETF_FUNDS_MOBILE_BP = 700;
+const ETF_FUNDS_MOBILE_BP_SM = 520;
+
+/** Hide non-essential ETF fund columns on narrow viewports. */
+function applyEtfFundsMobileColumns(table) {
+    if (!table || !document.getElementById('etfFundsTable')) {
+        return;
+    }
+
+    const compact = window.innerWidth < ETF_FUNDS_MOBILE_BP;
+    const extraCompact = window.innerWidth < ETF_FUNDS_MOBILE_BP_SM;
+
+    table.column(0).visible(!compact);
+    table.column(3).visible(!extraCompact);
+    table.column(5).visible(!compact);
+    table.column(6).visible(!compact);
+    table.column(7).visible(!compact);
+    table.column(8).visible(!extraCompact);
+    table.columns.adjust().draw(false);
+}
+
+let etfFundsResizeTimer = null;
+
+function bindEtfFundsResize(table) {
+    window.addEventListener('resize', function () {
+        clearTimeout(etfFundsResizeTimer);
+        etfFundsResizeTimer = setTimeout(function () {
+            applyEtfFundsMobileColumns(table);
+        }, 150);
+    });
+}
+
+const CUSTOMER_MGMT_MOBILE_BP = 700;
+const CUSTOMER_MGMT_MOBILE_BP_SM = 520;
+
+/** Hide non-essential customer columns on narrow viewports. */
+function applyCustomerManagementMobileColumns(table) {
+    if (!table || !document.getElementById('customerTable')) {
+        return;
+    }
+
+    const compact = window.innerWidth < CUSTOMER_MGMT_MOBILE_BP;
+    const extraCompact = window.innerWidth < CUSTOMER_MGMT_MOBILE_BP_SM;
+
+    table.column(0).visible(!compact);
+    table.column(4).visible(!compact);
+    table.column(6).visible(!compact);
+    table.column(7).visible(!compact);
+    table.column(3).visible(!extraCompact);
+    table.column(5).visible(!extraCompact);
+    table.columns.adjust().draw(false);
+}
+
+let customerMgmtResizeTimer = null;
+
+function bindCustomerManagementResize(table) {
+    window.addEventListener('resize', function () {
+        clearTimeout(customerMgmtResizeTimer);
+        customerMgmtResizeTimer = setTimeout(function () {
+            applyCustomerManagementMobileColumns(table);
+        }, 150);
+    });
+}
+
+const PTF_PORTFOLIO_MOBILE_BP = 700;
+const PTF_PORTFOLIO_MOBILE_BP_SM = 520;
+
+/** Hide non-essential PTF holdings columns on narrow viewports. */
+function applyPtfPortfolioMobileColumns(table) {
+    if (!table || !document.getElementById('ptfHoldingsTable')) {
+        return;
+    }
+
+    const compact = window.innerWidth < PTF_PORTFOLIO_MOBILE_BP;
+    const extraCompact = window.innerWidth < PTF_PORTFOLIO_MOBILE_BP_SM;
+
+    table.column(2).visible(!compact);
+    table.column(3).visible(!compact);
+    table.column(4).visible(!compact);
+    table.column(7).visible(!compact);
+    table.column(1).visible(!extraCompact);
+    table.columns.adjust().draw(false);
+}
+
+let ptfPortfolioResizeTimer = null;
+
+function bindPtfPortfolioResize(table) {
+    window.addEventListener('resize', function () {
+        clearTimeout(ptfPortfolioResizeTimer);
+        ptfPortfolioResizeTimer = setTimeout(function () {
+            applyPtfPortfolioMobileColumns(table);
+        }, 150);
+    });
+}
+
 function initCustomerManagementDataTable() {
     const tableEl = document.getElementById('customerTable');
     if (!tableEl) {
@@ -470,6 +590,8 @@ function initCustomerManagementDataTable() {
     });
 
     customerManagementDataTable = table;
+    applyCustomerManagementMobileColumns(table);
+    bindCustomerManagementResize(table);
 
     const addCustomerBtn = document.getElementById('btn-add-customer');
     if (addCustomerBtn) {
@@ -829,6 +951,8 @@ function initRecentTransactionsDataTable() {
     });
 
     recentTransactionsDataTable = recentTxTable;
+    applyDashboardRecentTxColumns(recentTxTable);
+    bindDashboardRecentTxResize(recentTxTable);
 
     const recentCsvBtn = document.getElementById('btn-recent-tx-export-csv');
     if (recentCsvBtn) {
@@ -1022,6 +1146,9 @@ function initEtfFundsDataTable() {
         },
     });
 
+    applyEtfFundsMobileColumns(etfFundsTable);
+    bindEtfFundsResize(etfFundsTable);
+
     const etfCsvBtn = document.getElementById('btn-etf-funds-export-csv');
     if (etfCsvBtn) {
         etfCsvBtn.addEventListener('click', function () {
@@ -1097,7 +1224,7 @@ function initPtfPortfolioHoldingsDataTable() {
         },
     ];
 
-    new DataTable('#ptfHoldingsTable', {
+    const ptfHoldingsTable = new DataTable('#ptfHoldingsTable', {
         data: mockHoldings,
         autoWidth: false,
         columns: [
@@ -1201,6 +1328,9 @@ function initPtfPortfolioHoldingsDataTable() {
             },
         },
     });
+
+    applyPtfPortfolioMobileColumns(ptfHoldingsTable);
+    bindPtfPortfolioResize(ptfHoldingsTable);
 }
 
 document.addEventListener('DOMContentLoaded', function () {

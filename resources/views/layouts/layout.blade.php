@@ -4,29 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  {{-- Before any CSS: apply saved theme so first paint matches (localStorage qe-theme; see public/assets/js/app.js). --}}
-  <script>
-    (function () {
-      try {
-        if (localStorage.getItem('qe-theme') === 'light') {
-          document.documentElement.setAttribute('data-theme', 'light');
-          document.documentElement.style.colorScheme = 'light';
-        } else {
-          document.documentElement.removeAttribute('data-theme');
-          document.documentElement.style.colorScheme = 'dark';
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <title>@yield('title', 'Home')</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
-    rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
-
-  <!-- This line tells Laravel to load the CSS and JS files we just configured with NPM packages! -->
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <x-layout.styles />
+  @stack('styles')
 </head>
 
 
@@ -357,31 +336,8 @@
   <x-modals.add-trade-modal />
   <x-modals.add-etf-fund-modal />
 
-  <!-- Scripts -->
-  <!-- why is this here -->
-  <!-- for the tables pagination search export etc -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="{{ asset('assets/js/app.js') }}"></script>
-  <script src="{{ asset('assets/js/charts.js') }}"></script>
-  <script src="{{ asset('assets/js/modals.js') }}"></script>
-
-
-
-  <script>document.addEventListener('DOMContentLoaded', function () { initETFProjChart(); });</script>
-  <script>document.addEventListener('DOMContentLoaded', function () { initPerfChart(); initAllocChart(); });</script>
-  {{--
-  <script src="{{ assets('assets/js/calculators.js') }}"></script> --}}
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="{{ asset('assets/js/calculators.js') }}"></script>
-  {{-- Fund list table: DataTables in Vite resources/js/app.js (initEtfFundsDataTable); buildFundTable no longer used --}}
-
-
-  {{--
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script src="assets/js/app.js"></script>
-  <script src="assets/js/modals.js"></script> --}}
-
+  <x-layout.scripts />
+  @stack('scripts')
 
 </body>
 

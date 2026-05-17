@@ -117,6 +117,12 @@
     table-layout: fixed;
 }
 
+@media (max-width: 700px) {
+    .customer-management-page .table-wrap > #customerTable.dataTable {
+        min-width: 520px;
+    }
+}
+
 /* Safety: if any column is still typed numeric/date, keep header flex LTR so sort arrows stay with the label */
 table.dataTable#customerTable thead > tr > th.dt-type-numeric div.dt-column-header,
 table.dataTable#customerTable thead > tr > th.dt-type-date div.dt-column-header {
@@ -144,6 +150,12 @@ table.dataTable#customerTable thead > tr > th .dt-column-order {
 .table-wrap > #recentTransactionsTable.dataTable {
     min-width: 960px;
     table-layout: fixed;
+}
+
+@media (max-width: 700px) {
+    .dashboard-page .table-wrap > #recentTransactionsTable.dataTable {
+        min-width: 640px;
+    }
 }
 
 table.dataTable#recentTransactionsTable thead > tr > th.dt-type-numeric div.dt-column-header,
@@ -174,6 +186,12 @@ table.dataTable#recentTransactionsTable thead > tr > th .dt-column-order {
     table-layout: fixed;
 }
 
+@media (max-width: 700px) {
+    .etf-funds-page .table-wrap > #etfFundsTable.dataTable {
+        min-width: 560px;
+    }
+}
+
 table.dataTable#etfFundsTable thead > tr > th.dt-type-numeric div.dt-column-header,
 table.dataTable#etfFundsTable thead > tr > th.dt-type-date div.dt-column-header {
     flex-direction: row;
@@ -200,6 +218,12 @@ table.dataTable#etfFundsTable thead > tr > th .dt-column-order {
 .table-wrap > #ptfHoldingsTable.dataTable {
     min-width: 1100px;
     table-layout: fixed;
+}
+
+@media (max-width: 700px) {
+    .ptf-portfolio-page .table-wrap > #ptfHoldingsTable.dataTable {
+        min-width: 480px;
+    }
 }
 
 table.dataTable#ptfHoldingsTable thead > tr > th.dt-type-numeric div.dt-column-header,
@@ -500,4 +524,45 @@ html[data-theme='light'] .select2-custom .ts-dropdown {
 }
 html[data-theme='light'] .select2-custom .ts-dropdown .option.active {
     background: var(--bg3, #dce3f2);
+}
+
+/* ─── DataTables — mobile ───────────────────────────────────── */
+@media (max-width: 700px) {
+    .dt-custom-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .dt-custom-footer .dataTables_info {
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .dt-custom-footer .dataTables_paginate {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .table-wrap {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        float: none;
+        text-align: left;
+        margin-bottom: 8px;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+        margin-top: 6px;
+        box-sizing: border-box;
+    }
 }

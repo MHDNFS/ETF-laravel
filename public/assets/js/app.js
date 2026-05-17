@@ -4,13 +4,27 @@
    ============================================================ */
 
 /* ─── SIDEBAR TOGGLE ──────────────────────────────────────── */
-function toggleSidebar() {
+const SIDEBAR_MOBILE_BP = 900;
+
+function isMobileSidebar() {
+  return window.innerWidth <= SIDEBAR_MOBILE_BP;
+}
+
+function setSidebarMobileOpen(open) {
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('sidebar-overlay');
+  if (!sb) return;
+  sb.classList.toggle('open', open);
+  if (ov) ov.classList.toggle('open', open);
+  document.body.classList.toggle('sidebar-mobile-open', open);
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
   const ma = document.getElementById('main-area');
-  if (window.innerWidth <= 900) {
-    sb.classList.toggle('open');
-    ov.classList.toggle('open');
+  if (!sb) return;
+  if (isMobileSidebar()) {
+    setSidebarMobileOpen(!sb.classList.contains('open'));
   } else {
     sb.classList.toggle('collapsed');
     if (ma) ma.classList.toggle('expanded');
@@ -18,10 +32,26 @@ function toggleSidebar() {
 }
 
 function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  sb.classList.remove('open');
+  sb.classList.remove('collapsed');
   const ov = document.getElementById('sidebar-overlay');
   if (ov) ov.classList.remove('open');
+  document.body.classList.remove('sidebar-mobile-open');
+  const ma = document.getElementById('main-area');
+  if (ma) ma.classList.remove('expanded');
 }
+
+document.querySelectorAll('#sidebar .nav-item').forEach(function (link) {
+  link.addEventListener('click', function () {
+    if (isMobileSidebar()) closeSidebar();
+  });
+});
+
+window.addEventListener('resize', function () {
+  if (!isMobileSidebar()) closeSidebar();
+});
 
 /* ─── AVATAR DROPDOWN ─────────────────────────────────────── */
 function toggleAvatarMenu() {
