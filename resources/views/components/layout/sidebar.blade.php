@@ -23,7 +23,7 @@
   </div>
 
   <div class="sidebar-section">Overview</div>
-  <x-layout.sidebar-item label="Dashboard" icon="fa-gauge-high" href="/index" :active="$active === 'dashboard'" />
+  <x-layout.sidebar-item label="Dashboard" icon="fa-gauge-high" href="/" :active="$active === 'dashboard'" />
   <x-layout.sidebar-item label="My Profile" icon="fa-user-circle" href="/profile" :active="$active === 'profile'" />
 
   <div class="sidebar-section">ETF Module</div>

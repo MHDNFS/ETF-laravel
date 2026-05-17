@@ -3,13 +3,13 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('pages.index', [
+        'activeSidebar' => 'dashboard',
+    ]);
 });
 
-// in here i put index page is loading with side bar access,,
+// Legacy URL — same dashboard as / (sidebar and bookmarks may still use /index).
 Route::get('/index', function () {
-    // Pass the active sidebar key so the dashboard link is highlighted.
-    // This key must match the sidebar item's 'key' value.
     return view('pages.index', [
         'activeSidebar' => 'dashboard',
     ]);
