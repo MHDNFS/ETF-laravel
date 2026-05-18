@@ -29,7 +29,7 @@
   <div class="sidebar-section">ETF Module</div>
   <x-layout.sidebar-item label="ETF Calculator" icon="fa-calculator" href="/etf-calculator" :active="$active === 'etf-calculator'" />
   <x-layout.sidebar-item label="Fund Explorer" icon="fa-layer-group" href="/etf-funds" badge="12" :active="$active === 'etf-funds'" />
-  <x-layout.sidebar-item label="Customer Management" icon="fa-users" href="/customer-management" :active="$active === 'customer-management'" />
+  <x-layout.sidebar-item label="Employees" icon="fa-users" href="/employees" :active="$active === 'employees'" />
 
   <div class="sidebar-section">PTF Module</div>
   <x-layout.sidebar-item label="Portfolio Manager" icon="fa-briefcase" href="/ptf-portfolio" :active="$active === 'ptf-portfolio'" />

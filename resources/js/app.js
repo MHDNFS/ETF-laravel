@@ -144,7 +144,7 @@ function etfFundRatingHtml(stars) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CUSTOMER MANAGEMENT PAGE — DataTables (runs only if #customerTable exists)
+// EMPLOYEES PAGE — DataTables (runs only if #employeeTable exists)
 // DASHBOARD — Recent Transactions — DataTables (runs only if #recentTransactionsTable exists)
 //
 // WHY this is here (not in the Blade file):
@@ -153,8 +153,8 @@ function etfFundRatingHtml(stars) {
 // this JS file. So by the time this code runs, the <table id="..."> is present.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Live reference for customer DataTable (add/edit modals on customer-management page). */
-let customerManagementDataTable = null;
+/** Live reference for Employee DataTable (add/edit modals on employees page). */
+let employeesDataTable = null;
 /** Dashboard `#recentTransactionsTable` — export toolbar targets this instance. */
 let recentTransactionsDataTable = null;
 
@@ -215,34 +215,37 @@ function bindEtfFundsResize(table) {
     });
 }
 
-const CUSTOMER_MGMT_MOBILE_BP = 700;
-const CUSTOMER_MGMT_MOBILE_BP_SM = 520;
+const EMPLOYEES_MGMT_MOBILE_BP = 700;
+const EMPLOYEES_MGMT_MOBILE_BP_SM = 520;
 
-/** Hide non-essential customer columns on narrow viewports. */
-function applyCustomerManagementMobileColumns(table) {
-    if (!table || !document.getElementById('customerTable')) {
+/** Hide non-essential Employee columns on narrow viewports. */
+function applyEmployeesMobileColumns(table) {
+    if (!table || !document.getElementById('employeeTable')) {
         return;
     }
 
-    const compact = window.innerWidth < CUSTOMER_MGMT_MOBILE_BP;
-    const extraCompact = window.innerWidth < CUSTOMER_MGMT_MOBILE_BP_SM;
+    const compact = window.innerWidth < EMPLOYEES_MGMT_MOBILE_BP;
+    const extraCompact = window.innerWidth < EMPLOYEES_MGMT_MOBILE_BP_SM;
 
+    // Company, Branch, Designation, Bank Account, Status — hide on narrow screens
     table.column(0).visible(!compact);
     table.column(4).visible(!compact);
+    table.column(5).visible(!compact);
     table.column(6).visible(!compact);
     table.column(7).visible(!compact);
+    // NIC, EPF No — hide on very narrow screens
+    table.column(2).visible(!extraCompact);
     table.column(3).visible(!extraCompact);
-    table.column(5).visible(!extraCompact);
     table.columns.adjust().draw(false);
 }
 
-let customerMgmtResizeTimer = null;
+let employeesMgmtResizeTimer = null;
 
-function bindCustomerManagementResize(table) {
+function bindEmployeesResize(table) {
     window.addEventListener('resize', function () {
-        clearTimeout(customerMgmtResizeTimer);
-        customerMgmtResizeTimer = setTimeout(function () {
-            applyCustomerManagementMobileColumns(table);
+        clearTimeout(employeesMgmtResizeTimer);
+        employeesMgmtResizeTimer = setTimeout(function () {
+            applyEmployeesMobileColumns(table);
         }, 150);
     });
 }
@@ -278,8 +281,26 @@ function bindPtfPortfolioResize(table) {
     });
 }
 
-function initCustomerManagementDataTable() {
-    const tableEl = document.getElementById('customerTable');
+async function fetchEmployeesFromApi() {
+    const Auth = window.MaraWebAuth;
+    if (!Auth || !Auth.getToken()) {
+        return [];
+    }
+
+    try {
+        const result = await Auth.apiFetch('/api/employees');
+        if (result.response.ok && Array.isArray(result.data.data)) {
+            return result.data.data;
+        }
+    } catch (e) {
+        /* table stays empty */
+    }
+
+    return [];
+}
+
+async function initEmployeesDataTable() {
+    const tableEl = document.getElementById('employeeTable');
     if (!tableEl) {
         return;
     }
@@ -288,9 +309,9 @@ function initCustomerManagementDataTable() {
         return;
     }
 
-    let editingCustomerId = null;
+    let editingEmployeeId = null;
 
-    function setCustomerField(id, value) {
+    function setEmployeeField(id, value) {
         const el = document.getElementById(id);
         if (!el) {
             return;
@@ -298,84 +319,132 @@ function initCustomerManagementDataTable() {
         el.value = value != null && value !== '' ? String(value) : '';
     }
 
-    function emptyCustomerFieldToNa(value) {
+    function apiValueToInput(value) {
         const t = String(value ?? '').trim();
 
-        return t === '' ? 'N/A' : t;
+        return t === '—' || t === 'N/A' ? '' : t;
     }
 
-    function resetAddCustomerForm() {
-        setCustomerField('add-customer-name', '');
-        setCustomerField('add-customer-email', '');
-        setCustomerField('add-customer-phone', '');
-        setCustomerField('add-customer-address', '');
-        setCustomerField('add-customer-balance', 'Rs. 0');
-        setCustomerField('add-customer-last-transaction', 'N/A');
-        const vehiclesEl = document.getElementById('add-customer-vehicles');
-        if (vehiclesEl) {
-            setSelectElementValue(vehiclesEl, 'No Tracking');
-        }
-    }
-
-    function readAddCustomerForm() {
-        const name = document.getElementById('add-customer-name')?.value.trim() ?? '';
-        const emailRaw = document.getElementById('add-customer-email')?.value ?? '';
-        const phoneRaw = document.getElementById('add-customer-phone')?.value.trim() ?? '';
-        const address = emptyCustomerFieldToNa(document.getElementById('add-customer-address')?.value ?? '');
-        const balanceRaw = document.getElementById('add-customer-balance')?.value.trim() ?? '';
-        const lastTxRaw = document.getElementById('add-customer-last-transaction')?.value.trim() ?? '';
-        const vehicles = getSelectElementValue(document.getElementById('add-customer-vehicles')) || 'No Tracking';
+    function readEmployeeForm(prefix) {
+        const el = (suffix) => document.getElementById(`${prefix}-${suffix}`);
 
         return {
-            name,
-            email: emptyCustomerFieldToNa(emailRaw),
-            phone: phoneRaw === '' ? 'N/A' : phoneRaw,
-            address,
-            balance: balanceRaw === '' ? 'Rs. 0' : balanceRaw,
-            last_transaction: lastTxRaw === '' ? 'N/A' : lastTxRaw,
-            vehicles,
+            company: getSelectElementValue(el('company')) || 'ABS',
+            name: el('name')?.value.trim() ?? '',
+            nic: el('nic')?.value.trim() ?? '',
+            epf_no: el('epf-no')?.value.trim() ?? '',
+            branch: getSelectElementValue(el('branch')) || 'ABS',
+            designation: el('designation')?.value.trim() ?? '',
+            bank_account: el('bank-account')?.value.trim() ?? '',
+            status: getSelectElementValue(el('status')) || 'active',
         };
     }
 
-    function readEditCustomerForm() {
-        const id = document.getElementById('edit-customer-id')?.value ?? '';
-        const name = document.getElementById('edit-customer-name')?.value.trim() ?? '';
-        const emailRaw = document.getElementById('edit-customer-email')?.value ?? '';
-        const phoneRaw = document.getElementById('edit-customer-phone')?.value.trim() ?? '';
-        const address = emptyCustomerFieldToNa(document.getElementById('edit-customer-address')?.value ?? '');
-        const balanceRaw = document.getElementById('edit-customer-balance')?.value.trim() ?? '';
-        const lastTxRaw = document.getElementById('edit-customer-last-transaction')?.value.trim() ?? '';
-        const vehicles = getSelectElementValue(document.getElementById('edit-customer-vehicles')) || 'No Tracking';
+    function fillEmployeeForm(prefix, row) {
+        const el = (suffix) => document.getElementById(`${prefix}-${suffix}`);
 
-        return {
-            id,
-            name,
-            email: emptyCustomerFieldToNa(emailRaw),
-            phone: phoneRaw === '' ? 'N/A' : phoneRaw,
-            address,
-            balance: balanceRaw === '' ? 'Rs. 0' : balanceRaw,
-            last_transaction: lastTxRaw === '' ? 'N/A' : lastTxRaw,
-            vehicles,
-        };
-    }
+        setEmployeeField(`${prefix}-name`, row.name);
+        setEmployeeField(`${prefix}-nic`, apiValueToInput(row.nic));
+        setEmployeeField(`${prefix}-epf-no`, apiValueToInput(row.epf_no));
+        setEmployeeField(`${prefix}-designation`, apiValueToInput(row.designation));
+        setEmployeeField(`${prefix}-bank-account`, apiValueToInput(row.bank_account));
 
-    function fillEditCustomerForm(row) {
-        setCustomerField('edit-customer-id', row.id);
-        setCustomerField('edit-customer-name', row.name);
-        setCustomerField('edit-customer-email', row.email === 'N/A' ? '' : row.email);
-        setCustomerField('edit-customer-phone', row.phone === 'N/A' ? '' : row.phone);
-        setCustomerField('edit-customer-address', row.address === 'N/A' ? '' : row.address);
-        setCustomerField('edit-customer-balance', row.balance);
-        setCustomerField('edit-customer-last-transaction', row.last_transaction === 'N/A' ? '' : row.last_transaction);
-        const vehiclesEl = document.getElementById('edit-customer-vehicles');
-        if (vehiclesEl) {
-            const v = row.vehicles || 'No Tracking';
-            const use = [...vehiclesEl.options].some((o) => o.value === v) ? v : 'No Tracking';
-            setSelectElementValue(vehiclesEl, use);
+        if (el('company')) {
+            setSelectElementValue(el('company'), row.company || 'ABS');
+        }
+        if (el('branch')) {
+            setSelectElementValue(el('branch'), row.branch || 'ABS');
+        }
+        if (el('status')) {
+            setSelectElementValue(el('status'), row.status || 'active');
         }
     }
 
-    function findCustomerRowApiById(tableApi, id) {
+    function resetAddEmployeeForm() {
+        fillEmployeeForm('add-employee', {
+            company: 'ABS',
+            name: '',
+            nic: '',
+            epf_no: '',
+            branch: 'ABS',
+            designation: '',
+            bank_account: '',
+            status: 'active',
+        });
+        const errorEl = document.getElementById('add-employee-form-error');
+        if (errorEl) {
+            errorEl.hidden = true;
+            errorEl.textContent = '';
+        }
+    }
+
+    function fillEditEmployeeForm(row) {
+        setEmployeeField('edit-employee-id', row.id);
+        fillEmployeeForm('edit-employee', row);
+        const errorEl = document.getElementById('edit-employee-form-error');
+        if (errorEl) {
+            errorEl.hidden = true;
+            errorEl.textContent = '';
+        }
+    }
+
+    function showEmployeeFormError(errorElId, message) {
+        const errorEl = document.getElementById(errorElId);
+        if (errorEl) {
+            errorEl.textContent = message || 'Unable to save employee.';
+            errorEl.hidden = false;
+        }
+    }
+
+    async function persistEmployeeApi(method, url, payload) {
+        const Auth = window.MaraWebAuth;
+        if (!Auth || !Auth.getToken()) {
+            throw new Error('You must be signed in to save employees.');
+        }
+
+        const result = await Auth.apiFetch(url, {
+            method: method,
+            body: payload,
+        });
+
+        if (!result.response.ok) {
+            let message = result.data?.message || 'Unable to save employee.';
+            if (result.data?.errors) {
+                const firstKey = Object.keys(result.data.errors)[0];
+                if (firstKey && result.data.errors[firstKey][0]) {
+                    message = result.data.errors[firstKey][0];
+                }
+            }
+            throw new Error(message);
+        }
+
+        return result.data?.data ?? result.data;
+    }
+
+    async function deleteEmployeeApi(id) {
+        const Auth = window.MaraWebAuth;
+        if (!Auth || !Auth.getToken()) {
+            throw new Error('You must be signed in to delete employees.');
+        }
+
+        const result = await Auth.apiFetch(`/api/employees/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (!result.response.ok) {
+            throw new Error(result.data?.message || 'Unable to delete employee.');
+        }
+    }
+
+    async function reloadEmployeesTable(tableApi) {
+        const rows = await fetchEmployeesFromApi();
+        tableApi.clear();
+        tableApi.rows.add(rows);
+        tableApi.draw(false);
+        refreshEmployeeCountBadge(tableApi);
+    }
+
+    function findEmployeeRowApiById(tableApi, id) {
         let found = null;
         tableApi.rows().every(function () {
             if (String(this.data().id) === String(id)) {
@@ -387,7 +456,7 @@ function initCustomerManagementDataTable() {
         return found;
     }
 
-    function nextCustomerId(tableApi) {
+    function nextEmployeeId(tableApi) {
         let max = 0;
         tableApi.rows().every(function () {
             const n = parseInt(String(this.data().id), 10);
@@ -398,8 +467,8 @@ function initCustomerManagementDataTable() {
         return max + 1;
     }
 
-    function refreshCustomerCountBadge(tableApi) {
-        const countEl = document.getElementById('customer-count');
+    function refreshEmployeeCountBadge(tableApi) {
+        const countEl = document.getElementById('employee-count');
         if (countEl) {
             countEl.textContent = String(tableApi.rows().count());
         }
@@ -408,12 +477,12 @@ function initCustomerManagementDataTable() {
     /**
      * Build the "Columns" dropdown: toggle DataTables visibility for every column except the last (Actions).
      */
-    function setupCustomerTableColumnMenu(tableApi, tableElement) {
-        const wrap = document.getElementById('customer-columns-dropdown');
-        const toggle = document.getElementById('customer-columns-toggle');
-        const menu = document.getElementById('customer-columns-menu');
-        const list = document.getElementById('customer-columns-checkboxes');
-        const chevron = document.getElementById('customer-columns-chevron');
+    function setupEmployeeTableColumnMenu(tableApi, tableElement) {
+        const wrap = document.getElementById('employee-columns-dropdown');
+        const toggle = document.getElementById('employee-columns-toggle');
+        const menu = document.getElementById('employee-columns-menu');
+        const list = document.getElementById('employee-columns-checkboxes');
+        const chevron = document.getElementById('employee-columns-chevron');
 
         if (!wrap || !toggle || !menu || !list || !tableApi || !tableElement) {
             return;
@@ -439,12 +508,12 @@ function initCustomerManagementDataTable() {
         for (let i = 0; i <= lastDataColIndex; i++) {
             const title = columnLabel(i);
             const row = document.createElement('div');
-            row.className = 'customer-columns-menu__row';
+            row.className = 'employees-columns-menu__row';
             row.setAttribute('role', 'menuitemcheckbox');
 
             const cb = document.createElement('input');
             cb.type = 'checkbox';
-            cb.id = `customer-col-vis-${i}`;
+            cb.id = `Employee-col-vis-${i}`;
             cb.checked = tableApi.column(i).visible();
 
             const label = document.createElement('label');
@@ -455,7 +524,7 @@ function initCustomerManagementDataTable() {
                 if (!cb.checked) {
                     let otherChecked = 0;
                     for (let j = 0; j <= lastDataColIndex; j++) {
-                        const el = list.querySelector(`#customer-col-vis-${j}`);
+                        const el = list.querySelector(`#Employee-col-vis-${j}`);
                         if (el && el !== cb && el.checked) {
                             otherChecked++;
                         }
@@ -500,43 +569,110 @@ function initCustomerManagementDataTable() {
         });
     }
 
-    const mockCustomerData = [
-        { id: 10, name: 'ABS',            email: 'N/A', phone: '0774003818', address: 'N/A', balance: '-Rs. 1,000', vehicles: '1 Vehicle(s)', last_transaction: '15 Apr 2026' },
-        { id: 11, name: 'Nabeel un',      email: 'N/A', phone: '0772373304', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 12, name: 'Nabeel ko',      email: 'N/A', phone: '0771010775', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 13, name: 'Habeeb',         email: 'N/A', phone: '0751693833', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 14, name: 'Naseer tec',     email: 'N/A', phone: '0772382201', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 15, name: 'Nawaar',         email: 'N/A', phone: '0760123752', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 16, name: 'Nizar',          email: 'N/A', phone: '0773133009', address: 'N/A', balance: 'Rs. 200',    vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 17, name: 'Rimaas',         email: 'N/A', phone: '0771773401', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 18, name: 'Himy mow',       email: 'N/A', phone: '0777863787', address: 'N/A', balance: 'Rs. 0',      vehicles: 'No Tracking',  last_transaction: 'N/A' },
-        { id: 19, name: 'Fawstheen Yaasir', email: 'N/A', phone: '0770279797', address: 'N/A', balance: 'Rs. 0',   vehicles: 'No Tracking',  last_transaction: 'N/A' },
-    ];
+    function employeeTableInitials(name) {
+        const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (parts.length >= 2) {
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+        if (parts.length === 1) {
+            return parts[0].slice(0, 2).toUpperCase();
+        }
 
-    const table = new DataTable('#customerTable', {
-        data: mockCustomerData,
+        return '—';
+    }
+
+    function renderEmployeeEmpty(value) {
+        const t = String(value ?? '').trim();
+        if (t === '' || t === '—' || t === 'N/A') {
+            return '<span class="dt-cell-muted">—</span>';
+        }
+
+        return null;
+    }
+
+    const employeeData = await fetchEmployeesFromApi();
+
+    const table = new DataTable('#employeeTable', {
+        data: employeeData,
         autoWidth: false,
         columns: [
-            // Force string type so DataTables does not mark these as numeric/date.
-            // Numeric/date headers use row-reverse in the default theme CSS, which
-            // moves the sort arrows to the left of the label — visually like “extra”
-            // arrows between columns when only some columns are numeric.
-            { data: 'id', title: 'ID', type: 'string', width: '5%' },
-            { data: 'name', title: 'Name', width: '12%' },
-            { data: 'email', title: 'Email', width: '12%' },
-            { data: 'phone', title: 'Phone', type: 'string', width: '10%' },
-            { data: 'address', title: 'Address', width: '12%' },
             {
-                data: 'balance',
-                title: 'Outstanding Balance',
-                width: '14%',
+                data: 'company',
+                title: 'Company',
+                width: '8%',
                 render: function (data) {
-                    const color = data.includes('-') ? '#3b82f6' : '#22c55e';
-                    return `<span style="color:${color}; font-weight:500">${data}</span>`;
-                }
+                    return `<span class="badge badge-green">${data}</span>`;
+                },
             },
-            { data: 'vehicles', title: 'Vehicles', width: '12%', render: function (data) { return `<span class="badge badge-blue">${data}</span>`; } },
-            { data: 'last_transaction', title: 'Last Transaction', type: 'string', width: '13%' },
+            {
+                data: 'name',
+                title: 'Employee',
+                width: '16%',
+                render: function (data) {
+                    const initials = employeeTableInitials(data);
+
+                    return `<span class="dt-employee-cell"><span class="dt-employee-avatar" aria-hidden="true">${initials}</span><span class="dt-employee-name">${data}</span></span>`;
+                },
+            },
+            {
+                data: 'nic',
+                title: 'NIC',
+                type: 'string',
+                width: '12%',
+                render: function (data) {
+                    const empty = renderEmployeeEmpty(data);
+
+                    return empty || `<span class="badge badge-muted">${data}</span>`;
+                },
+            },
+            {
+                data: 'epf_no',
+                title: 'EPF No',
+                type: 'string',
+                width: '8%',
+                render: function (data) {
+                    const empty = renderEmployeeEmpty(data);
+
+                    return empty || `<span class="dt-epf-no">${data}</span>`;
+                },
+            },
+            {
+                data: 'branch',
+                title: 'Branch',
+                width: '8%',
+                render: function (data) {
+                    return `<span class="badge badge-blue">${data}</span>`;
+                },
+            },
+            {
+                data: 'designation',
+                title: 'Designation',
+                width: '12%',
+                render: function (data) {
+                    return renderEmployeeEmpty(data) || data;
+                },
+            },
+            {
+                data: 'bank_account',
+                title: 'Bank Account',
+                width: '12%',
+                render: function (data) {
+                    return renderEmployeeEmpty(data) || data;
+                },
+            },
+            {
+                data: 'status',
+                title: 'Status',
+                width: '8%',
+                render: function (data) {
+                    const raw = String(data || 'active').toLowerCase();
+                    const isActive = raw === 'active';
+                    const label = isActive ? 'active' : 'deactive';
+                    const badgeClass = isActive ? 'badge-green' : 'badge-muted';
+
+                    return `<span class="badge ${badgeClass}">${label}</span>`;
+                },
+            },
             {
                 data: null,
                 title: 'Actions',
@@ -545,10 +681,10 @@ function initCustomerManagementDataTable() {
                 render: function () {
                     return `
                         <span class="dt-actions-cell">
-                        <button type="button" class="btn btn-outline btn-sm btn-icon-pill js-edit-customer" title="Edit">
+                        <button type="button" class="btn btn-outline btn-sm btn-icon-pill js-edit-employee" title="Edit">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
-                            <button type="button" class="btn btn-outline btn-sm btn-icon-pill btn-outline--danger" title="Delete">
+                            <button type="button" class="btn btn-outline btn-sm btn-icon-pill btn-outline--danger js-delete-employee" title="Delete">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </span>
@@ -575,8 +711,8 @@ function initCustomerManagementDataTable() {
         paging: true,
         pageLength: 10,
         language: {
-            info:          'Showing _START_ to _END_ of _TOTAL_ customers',
-            infoEmpty:     'No customers found',
+            info:          'Showing _START_ to _END_ of _TOTAL_ employees',
+            infoEmpty:     'No employees found',
             paginate: {
                 previous: '&lsaquo;',
                 next:     '&rsaquo;',
@@ -584,97 +720,126 @@ function initCustomerManagementDataTable() {
         },
         initComplete: function () {
             const api = this.api();
-            refreshCustomerCountBadge(api);
-            setupCustomerTableColumnMenu(api, tableEl);
+            refreshEmployeeCountBadge(api);
+            setupEmployeeTableColumnMenu(api, tableEl);
         }
     });
 
-    customerManagementDataTable = table;
-    applyCustomerManagementMobileColumns(table);
-    bindCustomerManagementResize(table);
+    employeesDataTable = table;
+    applyEmployeesMobileColumns(table);
+    bindEmployeesResize(table);
 
-    const addCustomerBtn = document.getElementById('btn-add-customer');
-    if (addCustomerBtn) {
-        addCustomerBtn.addEventListener('click', () => {
-            resetAddCustomerForm();
-            showModal('add-customer-modal');
+    const addEmployeeBtn = document.getElementById('btn-add-employee');
+    if (addEmployeeBtn) {
+        addEmployeeBtn.addEventListener('click', () => {
+            resetAddEmployeeForm();
+            showModal('add-employee-modal');
+            initSearchableFormSelects(document.getElementById('add-employee-modal'));
         });
     }
 
-    const addCustomerSave = document.getElementById('add-customer-save');
-    if (addCustomerSave) {
-        addCustomerSave.addEventListener('click', () => {
-            const f = readAddCustomerForm();
-            if (!f.name) {
-                showToast('error', 'Name required', 'Please enter a customer name.');
+    const addEmployeeSave = document.getElementById('add-employee-save');
+    if (addEmployeeSave) {
+        addEmployeeSave.addEventListener('click', async () => {
+            const payload = readEmployeeForm('add-employee');
+            if (!payload.name) {
+                showEmployeeFormError('add-employee-form-error', 'Employee name is required.');
                 return;
             }
-            table.row
-                .add({
-                    id: nextCustomerId(table),
-                    name: f.name,
-                    email: f.email,
-                    phone: f.phone,
-                    address: f.address,
-                    balance: f.balance,
-                    vehicles: f.vehicles,
-                    last_transaction: f.last_transaction,
-                })
-                .draw(false);
-            refreshCustomerCountBadge(table);
-            closeModal('add-customer-modal');
-            showToast('success', 'Customer added', 'New customer added to the table (demo).');
+
+            addEmployeeSave.disabled = true;
+
+            try {
+                await persistEmployeeApi('POST', '/api/employees', payload);
+                await reloadEmployeesTable(table);
+                closeModal('add-employee-modal');
+                showToast('success', 'Employee added', 'Employee saved to the database.');
+            } catch (error) {
+                showEmployeeFormError('add-employee-form-error', error.message);
+            } finally {
+                addEmployeeSave.disabled = false;
+            }
         });
     }
 
-    const editCustomerSave = document.getElementById('edit-customer-save');
-    if (editCustomerSave) {
-        editCustomerSave.addEventListener('click', () => {
-            if (editingCustomerId === null) {
+    const editEmployeeSave = document.getElementById('edit-employee-save');
+    if (editEmployeeSave) {
+        editEmployeeSave.addEventListener('click', async () => {
+            if (editingEmployeeId === null) {
                 return;
             }
-            const f = readEditCustomerForm();
-            if (!f.name) {
-                showToast('error', 'Name required', 'Please enter a customer name.');
+
+            const payload = readEmployeeForm('edit-employee');
+            if (!payload.name) {
+                showEmployeeFormError('edit-employee-form-error', 'Employee name is required.');
                 return;
             }
-            const rowApi = findCustomerRowApiById(table, editingCustomerId);
-            if (!rowApi) {
-                showToast('error', 'Row not found', 'Could not update this customer.');
-                return;
+
+            editEmployeeSave.disabled = true;
+
+            try {
+                await persistEmployeeApi('PUT', `/api/employees/${editingEmployeeId}`, payload);
+                await reloadEmployeesTable(table);
+                editingEmployeeId = null;
+                closeModal('edit-employee-modal');
+                showToast('success', 'Employee updated', 'Changes saved to the database.');
+            } catch (error) {
+                showEmployeeFormError('edit-employee-form-error', error.message);
+            } finally {
+                editEmployeeSave.disabled = false;
             }
-            rowApi
-                .data({
-                    id: f.id,
-                    name: f.name,
-                    email: f.email,
-                    phone: f.phone,
-                    address: f.address,
-                    balance: f.balance,
-                    vehicles: f.vehicles,
-                    last_transaction: f.last_transaction,
-                })
-                .draw(false);
-            editingCustomerId = null;
-            closeModal('edit-customer-modal');
-            showToast('success', 'Customer updated', 'Changes saved (demo).');
         });
     }
 
-    tableEl.addEventListener('click', (e) => {
-        const editBtn = e.target.closest('.js-edit-customer');
+    tableEl.addEventListener('click', async (e) => {
+        const deleteBtn = e.target.closest('.js-delete-employee');
+        if (deleteBtn && tableEl.contains(deleteBtn)) {
+            const tr = deleteBtn.closest('tr');
+            const rowApi = table.row(tr);
+            if (!rowApi.length) {
+                return;
+            }
+
+            const rowData = rowApi.data();
+            const employeeName = rowData.name || 'this employee';
+
+            if (!window.confirm(`Delete ${employeeName}? This cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                await deleteEmployeeApi(rowData.id);
+
+                if (String(editingEmployeeId) === String(rowData.id)) {
+                    editingEmployeeId = null;
+                    closeModal('edit-employee-modal');
+                }
+
+                await reloadEmployeesTable(table);
+                showToast('success', 'Employee deleted', `${employeeName} was removed from the database.`);
+            } catch (error) {
+                showToast('error', 'Delete failed', error.message || 'Unable to delete employee.');
+            }
+
+            return;
+        }
+
+        const editBtn = e.target.closest('.js-edit-employee');
         if (!editBtn || !tableEl.contains(editBtn)) {
             return;
         }
+
         const tr = editBtn.closest('tr');
         const rowApi = table.row(tr);
         if (!rowApi.length) {
             return;
         }
+
         const rowData = rowApi.data();
-        editingCustomerId = rowData.id;
-        fillEditCustomerForm(rowData);
-        showModal('edit-customer-modal');
+        editingEmployeeId = rowData.id;
+        fillEditEmployeeForm(rowData);
+        showModal('edit-employee-modal');
+        initSearchableFormSelects(document.getElementById('edit-employee-modal'));
     });
 
     const searchBox = document.getElementById('custom-searchBox');
@@ -698,8 +863,8 @@ function initCustomerManagementDataTable() {
         });
     }
 
-    const bulkUploadBtn = document.getElementById('btn-bulk-upload-customers');
-    const bulkModalId = 'bulk-upload-customers-modal';
+    const bulkUploadBtn = document.getElementById('btn-bulk-upload-employees');
+    const bulkModalId = 'bulk-upload-employees-modal';
     const bulkFileInput = document.getElementById('bulk-upload-file-input');
     const bulkFolderInput = document.getElementById('bulk-upload-folder-input');
     const bulkPickFiles = document.getElementById('bulk-upload-pick-files');
@@ -1335,7 +1500,7 @@ function initPtfPortfolioHoldingsDataTable() {
 
 document.addEventListener('DOMContentLoaded', function () {
     initSearchableFormSelects();
-    initCustomerManagementDataTable();
+    initEmployeesDataTable();
     initRecentTransactionsDataTable();
     initEtfFundsDataTable();
     initPtfPortfolioHoldingsDataTable();

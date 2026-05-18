@@ -33,11 +33,13 @@ Route::get('/etf-funds', function () {
     ]);
 });
 
-Route::get('/customer-management', function () {
-    return view('pages.customer-management', [
-        'activeSidebar' => 'customer-management',
+Route::get('/employees', function () {
+    return view('pages.employees', [
+        'activeSidebar' => 'employees',
     ]);
-});
+})->name('employees');
+
+Route::redirect('/customer-management', '/employees');
 
 Route::get('/ptf-portfolio', function () {
     return view('pages.ptf-portfolio', [

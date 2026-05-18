@@ -1,13 +1,13 @@
 {{--
   Bulk upload — files or an entire folder (webkitdirectory). Server handling is a separate step (route + controller).
 --}}
-<div class="modal-overlay" id="bulk-upload-customers-modal">
+<div class="modal-overlay" id="bulk-upload-employees-modal">
     <div class="modal" style="max-width: 560px">
         <div class="modal-header">
             <span class="modal-title" id="bulk-upload-modal-title">
                 <i class="fa-solid fa-cloud-arrow-up" style="color:var(--accent);margin-right:8px"></i>Bulk upload
             </span>
-            <button type="button" class="modal-close" onclick="closeModal('bulk-upload-customers-modal')" aria-label="Close">
+            <button type="button" class="modal-close" onclick="closeModal('bulk-upload-employees-modal')" aria-label="Close">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -41,7 +41,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-outline" onclick="closeModal('bulk-upload-customers-modal')">Cancel</button>
+            <button type="button" class="btn btn-outline" onclick="closeModal('bulk-upload-employees-modal')">Cancel</button>
             <button type="button" class="btn btn-blue" id="bulk-upload-submit" disabled>Upload</button>
         </div>
     </div>

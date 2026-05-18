@@ -42,7 +42,7 @@
    DATATABLES CUSTOM LAYOUT OVERRIDES
    WHY: The default DataTables CSS stacks info and pagination vertically and 
    left-aligns them. We override this so:
-     - "Showing 1 to 10 of 10 customers" appears on the BOTTOM LEFT
+     - "Showing 1 to 10 of 10 employees" appears on the BOTTOM LEFT
      - The page numbers (1, 2, 3...) appear on the BOTTOM RIGHT
    This matches modern dashboard UI patterns (like the screenshot reference).
 ───────────────────────────────────────────────────────────────────────────── */
@@ -112,41 +112,41 @@
 }
 
 /* Customer DataTable: min width + header flex so title + sort arrows stay one-per-column (no visual overlap) */
-.table-wrap > #customerTable.dataTable {
+.table-wrap > #employeeTable.dataTable {
     min-width: 1100px;
     table-layout: fixed;
 }
 
 @media (max-width: 700px) {
-    .customer-management-page .table-wrap > #customerTable.dataTable {
+    .employees-page .table-wrap > #employeeTable.dataTable {
         min-width: 520px;
     }
 }
 
 /* Safety: if any column is still typed numeric/date, keep header flex LTR so sort arrows stay with the label */
-table.dataTable#customerTable thead > tr > th.dt-type-numeric div.dt-column-header,
-table.dataTable#customerTable thead > tr > th.dt-type-date div.dt-column-header {
+table.dataTable#employeeTable thead > tr > th.dt-type-numeric div.dt-column-header,
+table.dataTable#employeeTable thead > tr > th.dt-type-date div.dt-column-header {
     flex-direction: row;
 }
 
-table.dataTable#customerTable thead > tr > th div.dt-column-header {
+table.dataTable#employeeTable thead > tr > th div.dt-column-header {
     justify-content: flex-start;
     gap: 0.35rem;
 }
 
-table.dataTable#customerTable thead > tr > th .dt-column-title {
+table.dataTable#employeeTable thead > tr > th .dt-column-title {
     flex-grow: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-table.dataTable#customerTable thead > tr > th .dt-column-order {
+table.dataTable#employeeTable thead > tr > th .dt-column-order {
     margin-left: auto;
     flex-shrink: 0;
 }
 
-/* Recent Transactions (dashboard): same header / sort alignment fixes as #customerTable */
+/* Recent Transactions (dashboard): same header / sort alignment fixes as #employeeTable */
 .table-wrap > #recentTransactionsTable.dataTable {
     min-width: 960px;
     table-layout: fixed;
@@ -313,91 +313,170 @@ table.dataTable#etfFundsTable > tbody > tr > td {
     margin: 0 !important;
 }
 
-/* Add / Edit Customer — shorter form (tighter gaps + 36px controls like compact trade rows) */
-#add-customer-modal .modal-header,
-#edit-customer-modal .modal-header {
-    padding: 14px 20px 10px;
+/* Add / Edit Employee modal — readable spacing + wider dialog */
+.modal.modal--employee {
+    max-width: 640px;
+    width: calc(100% - 32px);
 }
-#add-customer-modal .modal-body,
-#edit-customer-modal .modal-body {
-    padding: 10px 20px 8px;
+#add-employee-modal .modal-header,
+#edit-employee-modal .modal-header {
+    padding: 18px 24px 14px;
 }
-#add-customer-modal .modal-footer,
-#edit-customer-modal .modal-footer {
-    padding: 8px 20px 12px;
+#add-employee-modal .modal-body,
+#edit-employee-modal .modal-body {
+    padding: 20px 24px;
+    max-height: min(72vh, 640px);
+    overflow-y: auto;
 }
-#add-customer-modal .trade-form,
-#edit-customer-modal .trade-form {
-    gap: 6px;
+#add-employee-modal .modal-footer,
+#edit-employee-modal .modal-footer {
+    padding: 14px 24px 18px;
 }
-#add-customer-modal .trade-row2,
-#edit-customer-modal .trade-row2 {
-    gap: 8px;
+#add-employee-modal .employee-form.trade-form,
+#edit-employee-modal .employee-form.trade-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
-#add-customer-modal .trade-field,
-#edit-customer-modal .trade-field {
-    grid-template-rows: auto 36px;
-    row-gap: 2px;
+#add-employee-modal .trade-row2,
+#edit-employee-modal .trade-row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
 }
-#add-customer-modal .trade-field > .form-label,
-#edit-customer-modal .trade-field > .form-label {
+#add-employee-modal .trade-field,
+#edit-employee-modal .trade-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 4px;
+}
+#add-employee-modal .trade-field > .form-label,
+#edit-employee-modal .trade-field > .form-label {
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text2, #b0bac5);
     text-transform: uppercase;
     letter-spacing: 0.45px;
-    line-height: 1.15 !important;
+    line-height: 1.3;
+    margin: 0 0 2px;
 }
-#add-customer-modal .trade-control,
-#edit-customer-modal .trade-control {
-    height: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
+#add-employee-modal .trade-control,
+#edit-employee-modal .trade-control {
+    height: auto !important;
+    min-height: 42px !important;
+    max-height: none !important;
 }
-#add-customer-modal .trade-control > .form-control,
-#edit-customer-modal .trade-control > .form-control {
-    height: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
-    padding: 6px 10px !important;
-    font-size: 13px;
-    line-height: 1.2;
+#add-employee-modal .trade-control > .form-control,
+#edit-employee-modal .trade-control > .form-control {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: none !important;
+    padding: 10px 12px !important;
+    font-size: 14px;
+    line-height: 1.35;
 }
-#add-customer-modal .trade-control > .select2-custom,
-#edit-customer-modal .trade-control > .select2-custom {
-    height: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
+#add-employee-modal .trade-control > .select2-custom,
+#edit-employee-modal .trade-control > .select2-custom {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: none !important;
 }
-#add-customer-modal .trade-control > .select2-custom .ts-wrapper,
-#edit-customer-modal .trade-control > .select2-custom .ts-wrapper {
+#add-employee-modal .trade-control > .select2-custom .ts-wrapper,
+#edit-employee-modal .trade-control > .select2-custom .ts-wrapper {
     height: 100%;
 }
-#add-customer-modal .trade-control > .select2-custom .ts-control,
-#edit-customer-modal .trade-control > .select2-custom .ts-control {
-    min-height: 36px !important;
-    height: 36px !important;
-    padding: 6px 28px 6px 10px !important;
+#add-employee-modal .trade-control > .select2-custom .ts-control,
+#edit-employee-modal .trade-control > .select2-custom .ts-control {
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 8px 32px 8px 12px !important;
+}
+#add-employee-modal .login-alert,
+#edit-employee-modal .login-alert {
+    margin-bottom: 16px;
+}
+#add-employee-modal .modal-body,
+#edit-employee-modal .modal-body {
+    overflow: visible;
+}
+#add-employee-modal .trade-control > .select2-custom select,
+#edit-employee-modal .trade-control > .select2-custom select {
+    cursor: pointer;
+}
+@media (max-width: 520px) {
+    #add-employee-modal .trade-row2,
+    #edit-employee-modal .trade-row2 {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Customer Management — Columns visibility dropdown (DataTables column().visible()) */
-.customer-columns-dropdown {
+/* Employees table — company / employee / status cells */
+.badge-muted {
+    background: rgba(148, 163, 184, 0.15);
+    color: var(--text2);
+}
+.dt-employee-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+.dt-employee-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.dt-employee-name {
+    font-weight: 600;
+    color: var(--text);
+}
+.dt-cell-muted {
+    color: var(--text3);
+}
+.dt-epf-no {
+    color: #34d399;
+    font-weight: 500;
+}
+
+/* Employees — Columns visibility dropdown (DataTables column().visible()) */
+.employees-columns-dropdown {
     position: relative;
 }
-.customer-columns-menu {
+.employees-columns-menu {
     position: absolute;
     right: 0;
-    top: 100%;
-    margin-top: 6px;
+    top: calc(100% + 6px);
     min-width: 220px;
-    padding: 6px 0;
-    z-index: 30;
+    padding: 6px 0 8px;
+    z-index: 50;
     background: var(--bg2, #0f1629);
     border: 1px solid var(--border2, rgba(99, 142, 255, 0.22));
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
-.customer-columns-menu__row {
+.employees-columns-menu__title {
+    margin: 0;
+    padding: 8px 14px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text3, #6b7a90);
+    border-bottom: 1px solid var(--border, rgba(99, 142, 255, 0.12));
+}
+.employees-table-toolbar {
+    position: relative;
+    z-index: 2;
+}
+.employees-columns-menu__row {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -405,14 +484,14 @@ table.dataTable#etfFundsTable > tbody > tr > td {
     font-size: 13px;
     color: var(--text2, #b0bac5);
 }
-.customer-columns-menu__row:hover {
+.employees-columns-menu__row:hover {
     background: var(--bg3, #141d35);
 }
-.customer-columns-menu__row input[type='checkbox'] {
+.employees-columns-menu__row input[type='checkbox'] {
     accent-color: var(--accent, #4f8cff);
     cursor: pointer;
 }
-.customer-columns-menu__row label {
+.employees-columns-menu__row label {
     cursor: pointer;
     flex: 1;
     margin: 0;

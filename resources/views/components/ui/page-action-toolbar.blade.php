@@ -1,6 +1,6 @@
 {{--
   Reusable header action buttons (export, bulk upload, primary CTA).
-  Toggle each action with show* props. IDs default to customer-management hooks in resources/js/app.js;
+  Toggle each action with show* props. IDs default to employees page hooks in resources/js/app.js;
   override per page when you wire different script behavior.
 
   Optional default slot: extra buttons rendered after the configured actions.
@@ -9,15 +9,15 @@
     'showExportCsv' => false,
     'showExportPdf' => false,
     'showBulkUpload' => false,
-    'showAddCustomer' => false,
+    'showAddEmployee' => false,
     'exportCsvId' => 'btn-export-csv',
     'exportPdfId' => 'btn-export-pdf',
-    'bulkUploadId' => 'btn-bulk-upload-customers',
-    'addCustomerId' => 'btn-add-customer',
+    'bulkUploadId' => 'btn-bulk-upload-employees',
+    'addEmployeeId' => 'btn-add-employee',
     'exportCsvLabel' => 'Export CSV',
     'exportPdfLabel' => 'Export PDF',
     'bulkUploadLabel' => 'Bulk upload',
-    'addCustomerLabel' => 'Add Customer',
+    'addEmployeeLabel' => 'Add Employee',
 ])
 
 <div {{ $attributes->merge(['style' => 'display: flex; gap: 10px; flex-wrap: wrap; align-items: center;']) }}>
@@ -39,9 +39,9 @@
         </button>
     @endif
 
-    @if ($showAddCustomer)
-        <button type="button" class="btn btn-blue btn-sm" id="{{ $addCustomerId }}">
-            <i class="fa-solid fa-plus"></i> {{ $addCustomerLabel }}
+    @if ($showAddEmployee)
+        <button type="button" class="btn btn-blue btn-sm" id="{{ $addEmployeeId }}">
+            <i class="fa-solid fa-plus"></i> {{ $addEmployeeLabel }}
         </button>
     @endif
 
