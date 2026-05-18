@@ -63,11 +63,12 @@
                 </div>
             </div>
 
-            <div class="table-wrap table-wrap--scroll-hint">
+            <div class="table-wrap table-wrap--scroll-hint employees-table-scroll" id="employees-table-scroll">
                 <table id="employeeTable" style="width: 100%;">
                     <tbody></tbody>
                 </table>
             </div>
+            <p id="employees-scroll-status" class="employees-scroll-status" hidden aria-live="polite"></p>
         </section>
     </div>
 

@@ -6,7 +6,8 @@ it('serves employees page with correct title', function () {
     expect($html)
         ->toContain('<title>Employees</title>')
         ->toContain('All Employees')
-        ->toContain('id="employeeTable"');
+        ->toContain('id="employeeTable"')
+        ->toContain('id="employees-table-scroll"');
 });
 
 it('redirects legacy customer management url to employees', function () {

@@ -28,13 +28,54 @@ it('returns employees from api with bearer token', function () {
     $token = $user->createToken('test')->plainTextToken;
 
     $this->withToken($token)
-        ->getJson('/api/employees')
+        ->getJson('/api/employees?per_page=100')
         ->assertOk()
         ->assertJsonCount(10, 'data')
         ->assertJsonPath('data.0.name', 'M M A SALAM')
         ->assertJsonPath('data.0.nic', '541682864V')
         ->assertJsonPath('data.0.designation', 'Senior Portfolio Manager')
-        ->assertJsonPath('data.1.designation', 'Fund Operations Executive');
+        ->assertJsonPath('data.1.designation', 'Fund Operations Executive')
+        ->assertJsonPath('meta.has_more', false);
+});
+
+it('returns cursor paginated employees', function () {
+    $this->seed(EmployeeSeeder::class);
+
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $first = $this->withToken($token)
+        ->getJson('/api/employees?per_page=5')
+        ->assertOk()
+        ->assertJsonCount(5, 'data')
+        ->assertJsonPath('meta.has_more', true)
+        ->assertJsonStructure([
+            'data',
+            'meta' => ['next_cursor', 'prev_cursor', 'per_page', 'has_more'],
+        ]);
+
+    $cursor = $first->json('meta.next_cursor');
+
+    expect($cursor)->not->toBeEmpty();
+
+    $this->withToken($token)
+        ->getJson('/api/employees?per_page=5&cursor='.urlencode($cursor))
+        ->assertOk()
+        ->assertJsonCount(5, 'data')
+        ->assertJsonPath('meta.has_more', false);
+});
+
+it('filters employees by search term', function () {
+    $this->seed(EmployeeSeeder::class);
+
+    $user = User::factory()->create();
+    $token = $user->createToken('test')->plainTextToken;
+
+    $this->withToken($token)
+        ->getJson('/api/employees?search=Habeeb&per_page=100')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Habeeb');
 });
 
 it('rejects employees api without token', function () {

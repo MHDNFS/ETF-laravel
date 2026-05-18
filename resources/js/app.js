@@ -155,6 +155,13 @@ function etfFundRatingHtml(stars) {
 
 /** Live reference for Employee DataTable (add/edit modals on employees page). */
 let employeesDataTable = null;
+
+/** Cursor pagination state for the employees table (infinite scroll). */
+const EMPLOYEES_PAGE_SIZE = 25;
+let employeesNextCursor = null;
+let employeesHasMore = false;
+let employeesLoadingMore = false;
+let employeesSearchTerm = '';
 /** Dashboard `#recentTransactionsTable` — export toolbar targets this instance. */
 let recentTransactionsDataTable = null;
 
@@ -281,22 +288,82 @@ function bindPtfPortfolioResize(table) {
     });
 }
 
-async function fetchEmployeesFromApi() {
+/**
+ * Fetch one page of employees (cursor pagination).
+ * @returns {{ data: object[], nextCursor: string|null, hasMore: boolean }}
+ */
+async function fetchEmployeesPage(cursor, params) {
     const Auth = window.MaraWebAuth;
     if (!Auth || !Auth.getToken()) {
-        return [];
+        return { data: [], nextCursor: null, hasMore: false };
+    }
+
+    const query = new URLSearchParams();
+    query.set('per_page', String(EMPLOYEES_PAGE_SIZE));
+
+    const filters = params || {};
+    if (filters.search) {
+        query.set('search', filters.search);
+    }
+    if (filters.company) {
+        query.set('company', filters.company);
+    }
+    if (filters.branch) {
+        query.set('branch', filters.branch);
+    }
+    if (filters.status) {
+        query.set('status', filters.status);
+    }
+    if (cursor) {
+        query.set('cursor', cursor);
     }
 
     try {
-        const result = await Auth.apiFetch('/api/employees');
-        if (result.response.ok && Array.isArray(result.data.data)) {
-            return result.data.data;
+        const result = await Auth.apiFetch(`/api/employees?${query.toString()}`);
+        if (!result.response.ok) {
+            console.error('Employees API error', result.response.status, result.data);
+            return { data: [], nextCursor: null, hasMore: false };
         }
+
+        const payload = result.data || {};
+        const data = Array.isArray(payload.data) ? payload.data : [];
+        const meta = payload.meta || {};
+
+        return {
+            data: data,
+            nextCursor: meta.next_cursor ?? null,
+            hasMore: Boolean(meta.has_more),
+        };
     } catch (e) {
-        /* table stays empty */
+        return { data: [], nextCursor: null, hasMore: false };
+    }
+}
+
+function updateEmployeesScrollStatus(loadedCount) {
+    const statusEl = document.getElementById('employees-scroll-status');
+    if (!statusEl) {
+        return;
     }
 
-    return [];
+    if (loadedCount === 0) {
+        statusEl.textContent = '';
+        statusEl.hidden = true;
+        return;
+    }
+
+    statusEl.hidden = false;
+
+    if (employeesLoadingMore) {
+        statusEl.textContent = 'Loading more employees…';
+        return;
+    }
+
+    if (employeesHasMore) {
+        statusEl.textContent = `${loadedCount} loaded — scroll down for more`;
+        return;
+    }
+
+    statusEl.textContent = `${loadedCount} employee${loadedCount === 1 ? '' : 's'} loaded`;
 }
 
 async function initEmployeesDataTable() {
@@ -436,12 +503,67 @@ async function initEmployeesDataTable() {
         }
     }
 
-    async function reloadEmployeesTable(tableApi) {
-        const rows = await fetchEmployeesFromApi();
+    async function loadEmployeesFirstPage(tableApi) {
+        employeesNextCursor = null;
+        employeesHasMore = false;
+
+        const page = await fetchEmployeesPage(null, { search: employeesSearchTerm });
+        employeesNextCursor = page.nextCursor;
+        employeesHasMore = page.hasMore;
+
         tableApi.clear();
-        tableApi.rows.add(rows);
+        if (page.data.length) {
+            tableApi.rows.add(page.data);
+        }
         tableApi.draw(false);
         refreshEmployeeCountBadge(tableApi);
+        updateEmployeesScrollStatus(tableApi.rows().count());
+    }
+
+    async function loadMoreEmployees(tableApi) {
+        if (!employeesHasMore || employeesLoadingMore || !employeesNextCursor) {
+            return;
+        }
+
+        employeesLoadingMore = true;
+        updateEmployeesScrollStatus(tableApi.rows().count());
+
+        const page = await fetchEmployeesPage(employeesNextCursor, { search: employeesSearchTerm });
+        employeesNextCursor = page.nextCursor;
+        employeesHasMore = page.hasMore;
+
+        if (page.data.length) {
+            tableApi.rows.add(page.data);
+            tableApi.draw(false);
+        }
+
+        employeesLoadingMore = false;
+        refreshEmployeeCountBadge(tableApi);
+        updateEmployeesScrollStatus(tableApi.rows().count());
+    }
+
+    async function reloadEmployeesTable(tableApi) {
+        await loadEmployeesFirstPage(tableApi);
+    }
+
+    function bindEmployeesInfiniteScroll(tableApi, tableElement) {
+        const scrollWrap = tableElement.closest('.employees-table-scroll');
+        if (!scrollWrap) {
+            return;
+        }
+
+        scrollWrap.addEventListener('scroll', () => {
+            if (employeesLoadingMore || !employeesHasMore) {
+                return;
+            }
+
+            const nearBottom =
+                scrollWrap.scrollTop + scrollWrap.clientHeight >= scrollWrap.scrollHeight - 80;
+
+            if (nearBottom) {
+                loadMoreEmployees(tableApi);
+            }
+        });
     }
 
     function findEmployeeRowApiById(tableApi, id) {
@@ -590,10 +712,9 @@ async function initEmployeesDataTable() {
         return null;
     }
 
-    const employeeData = await fetchEmployeesFromApi();
-
     const table = new DataTable('#employeeTable', {
-        data: employeeData,
+        data: [],
+        deferRender: true,
         autoWidth: false,
         columns: [
             {
@@ -692,7 +813,7 @@ async function initEmployeesDataTable() {
                 }
             }
         ],
-        dom: 'rt<"dt-custom-footer"ip>',
+        dom: 'rt<"dt-custom-footer"i>',
         buttons: [
             {
                 extend: 'csvHtml5',
@@ -708,15 +829,10 @@ async function initEmployeesDataTable() {
             }
         ],
         ordering: true,
-        paging: true,
-        pageLength: 10,
+        paging: false,
         language: {
-            info:          'Showing _START_ to _END_ of _TOTAL_ employees',
+            info:          '_TOTAL_ employees loaded',
             infoEmpty:     'No employees found',
-            paginate: {
-                previous: '&lsaquo;',
-                next:     '&rsaquo;',
-            }
         },
         initComplete: function () {
             const api = this.api();
@@ -728,6 +844,16 @@ async function initEmployeesDataTable() {
     employeesDataTable = table;
     applyEmployeesMobileColumns(table);
     bindEmployeesResize(table);
+    bindEmployeesInfiniteScroll(table, tableEl);
+
+    try {
+        await loadEmployeesFirstPage(table);
+    } catch (loadError) {
+        console.error('Failed to load employees', loadError);
+        if (typeof showToast === 'function') {
+            showToast('error', 'Employees', 'Could not load employee list. Try signing in again.');
+        }
+    }
 
     const addEmployeeBtn = document.getElementById('btn-add-employee');
     if (addEmployeeBtn) {
@@ -843,9 +969,14 @@ async function initEmployeesDataTable() {
     });
 
     const searchBox = document.getElementById('custom-searchBox');
+    let employeesSearchDebounce = null;
     if (searchBox) {
-        searchBox.addEventListener('keyup', function () {
-            table.search(this.value).draw();
+        searchBox.addEventListener('input', function () {
+            clearTimeout(employeesSearchDebounce);
+            employeesSearchDebounce = setTimeout(async () => {
+                employeesSearchTerm = searchBox.value.trim();
+                await loadEmployeesFirstPage(table);
+            }, 350);
         });
     }
 
