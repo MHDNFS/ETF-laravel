@@ -143,6 +143,63 @@ body {
 .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .login-footer { text-align: center; font-size: 13px; color: var(--text3); }
 .login-footer a { color: var(--accent); text-decoration: none; }
+.login-alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.login-alert--error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+.login-form .form-group { margin-bottom: 16px; }
+.login-field-error {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #f87171;
+}
+.login-form .form-control.is-invalid {
+  border-color: rgba(239, 68, 68, 0.65);
+}
+
+/* ─── AUTH GUARD (dashboard pages) ───────────────────────── */
+body.auth-protected.auth-pending #app {
+  visibility: hidden;
+  pointer-events: none;
+}
+body.auth-protected.auth-ready #app {
+  visibility: visible;
+  pointer-events: auto;
+}
+.auth-checking {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg);
+  color: var(--text2);
+  font-size: 14px;
+}
+body.auth-protected.auth-ready .auth-checking {
+  display: none;
+}
+.auth-checking-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: authSpin 0.8s linear infinite;
+}
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
 
 /* ─── LAYOUT ──────────────────────────────────────────────── */
 #app { display: flex; min-height: 100vh; }
@@ -233,6 +290,15 @@ body {
 .sidebar-profile-role { font-size: 11px; color: var(--text3); }
 .sidebar-profile-btn { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 14px; transition: color 0.15s; }
 .sidebar-profile-btn:hover { color: var(--danger); }
+.sidebar-logout-form { margin: 0; padding: 0; }
+.avatar-menu-item--button {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
 .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 299; }
 .sidebar-overlay.open { display: block; }
 

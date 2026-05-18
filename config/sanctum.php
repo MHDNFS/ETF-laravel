@@ -37,7 +37,8 @@ return [
     |
     */
 
-    'guard' => ['web'],
+    // API-only Bearer tokens — do not fall back to the web session guard.
+    'guard' => [],
 
     /*
     |--------------------------------------------------------------------------

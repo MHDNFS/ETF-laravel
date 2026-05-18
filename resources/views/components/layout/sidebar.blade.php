@@ -23,7 +23,7 @@
   </div>
 
   <div class="sidebar-section">Overview</div>
-  <x-layout.sidebar-item label="Dashboard" icon="fa-gauge-high" href="/" :active="$active === 'dashboard'" />
+  <x-layout.sidebar-item label="Dashboard" icon="fa-gauge-high" href="/dashboard" :active="$active === 'dashboard'" />
   <x-layout.sidebar-item label="My Profile" icon="fa-user-circle" href="/profile" :active="$active === 'profile'" />
 
   <div class="sidebar-section">ETF Module</div>
@@ -39,11 +39,15 @@
   <x-layout.sidebar-item label="Settings" icon="fa-gear" href="/settings" badge="!" :active="$active === 'settings'" />
 
   <div class="sidebar-profile">
-    <div class="avatar"><span>AA</span><div class="online-dot"></div></div>
+    <div class="avatar"><span id="auth-user-initials" data-auth-initials>--</span><div class="online-dot"></div></div>
     <div class="sidebar-profile-info">
-      <div class="sidebar-profile-name">Alex Analyst</div>
-      <div class="sidebar-profile-role">Senior Portfolio Manager</div>
+      <div class="sidebar-profile-name" id="auth-user-name" data-auth-name>--</div>
+      <div class="sidebar-profile-role" id="auth-user-role" data-auth-role>--</div>
     </div>
-    <a href="/" class="sidebar-profile-btn" title="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+    <button type="button" class="sidebar-profile-btn" data-auth-logout title="Sign out" aria-label="Sign out">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+    </button>
   </div>
 </nav>
+
+

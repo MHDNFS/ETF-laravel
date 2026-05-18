@@ -1,4 +1,13 @@
 {{-- Global head assets: theme flash, title, fonts, app CSS, Vite bundle. --}}
+@props([
+    'title' => null,
+])
+
+@php
+    $documentTitle = $title
+        ?? (trim($__env->yieldContent('title')) !== '' ? $__env->yieldContent('title') : 'Home');
+@endphp
+
 <script>
   (function () {
     try {
@@ -12,7 +21,7 @@
     } catch (e) {}
   })();
 </script>
-<title>@yield('title', 'Home')</title>
+<title>{{ $documentTitle }}</title>
 <link
   href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
   rel="stylesheet">

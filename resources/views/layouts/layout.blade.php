@@ -9,7 +9,11 @@
 </head>
 
 
-<body>
+<body class="auth-protected auth-pending">
+  <div id="auth-checking" class="auth-checking" aria-live="polite" aria-busy="true">
+    <span class="auth-checking-spinner" aria-hidden="true"></span>
+    <span>Checking session…</span>
+  </div>
   <div id="app">
 
     <!-- Sidebar Overlay -->
@@ -336,6 +340,8 @@
   <x-modals.add-trade-modal />
   <x-modals.add-etf-fund-modal />
 
+  <script src="{{ asset('assets/js/auth-api.js') }}"></script>
+  <script src="{{ asset('assets/js/auth-guard.js') }}"></script>
   <x-layout.scripts />
   @stack('scripts')
 

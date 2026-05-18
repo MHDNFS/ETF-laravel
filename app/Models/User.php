@@ -2,33 +2,23 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-//this line for API token management
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    // use HasFactory, Notifiable;
-
-    //why i add HasApiTokens here because i want to use API token management in my application,
-// and this trait provides the necessary methods and properties to manage API tokens for the user model.
-// It allows me to create, revoke, and manage API tokens for authentication purposes when building APIs with Laravel Sanctum.
     use HasApiTokens, HasFactory, Notifiable;
 
-
-
     /**
-     * Get the attributes that should be cast.
-     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -36,6 +26,27 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SuperAdmin;
+    }
+
+    public function initials(): string
+    {
+        $parts = preg_split('/\s+/', trim($this->name)) ?: [];
+
+        if ($parts === []) {
+            return 'U';
+        }
+
+        if (count($parts) === 1) {
+            return strtoupper(substr($parts[0], 0, 2));
+        }
+
+        return strtoupper(substr($parts[0], 0, 1).substr($parts[array_key_last($parts)], 0, 1));
     }
 }

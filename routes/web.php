@@ -1,21 +1,20 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', [LoginController::class, 'create'])->name('login');
+
+Route::redirect('/login', '/')->name('login.legacy');
+
+Route::get('/dashboard', function () {
     return view('pages.index', [
         'activeSidebar' => 'dashboard',
     ]);
-});
+})->name('dashboard');
 
-// Legacy URL — same dashboard as / (sidebar and bookmarks may still use /index).
-Route::get('/index', function () {
-    return view('pages.index', [
-        'activeSidebar' => 'dashboard',
-    ]);
-});
+Route::redirect('/index', '/dashboard');
 
-// we can call like this for any pages in sidebar
 Route::get('/profile', function () {
     return view('pages.profile', [
         'activeSidebar' => 'profile',
