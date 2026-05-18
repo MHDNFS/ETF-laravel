@@ -43,6 +43,7 @@ pdfMake.vfs = pdfFonts.vfs;
 window.JSZip = JSZip;
 window.$ = window.jQuery = $;
 window.DataTable = DataTable;
+window.pdfMake = pdfMake;
 
 /**
  * Initialize Tom Select on every `.select2-custom` wrapper from `<x-forms.form-select>` (search in dropdown).
@@ -299,9 +300,9 @@ async function fetchEmployeesPage(cursor, params) {
     }
 
     const query = new URLSearchParams();
-    query.set('per_page', String(EMPLOYEES_PAGE_SIZE));
-
     const filters = params || {};
+    const perPage = filters.perPage ?? EMPLOYEES_PAGE_SIZE;
+    query.set('per_page', String(perPage));
     if (filters.search) {
         query.set('search', filters.search);
     }
@@ -364,6 +365,182 @@ function updateEmployeesScrollStatus(loadedCount) {
     }
 
     statusEl.textContent = `${loadedCount} employee${loadedCount === 1 ? '' : 's'} loaded`;
+}
+
+const EMPLOYEE_EXPORT_COLUMNS = [
+    { key: 'company', label: 'Company' },
+    { key: 'name', label: 'Employee' },
+    { key: 'nic', label: 'NIC' },
+    { key: 'epf_no', label: 'EPF No' },
+    { key: 'branch', label: 'Branch' },
+    { key: 'designation', label: 'Designation' },
+    { key: 'bank_account', label: 'Bank Account' },
+    { key: 'status', label: 'Status' },
+];
+
+function employeeExportPlainValue(row, key) {
+    const raw = row[key];
+    if (raw === null || raw === undefined) {
+        return '';
+    }
+
+    const text = String(raw).trim();
+    if (text === '' || text === '—' || text === 'N/A') {
+        return '';
+    }
+
+    if (key === 'status') {
+        return text.toLowerCase() === 'active' ? 'active' : 'deactive';
+    }
+
+    return text;
+}
+
+function escapeCsvField(value) {
+    const text = String(value ?? '');
+    if (/[",\n\r]/.test(text)) {
+        return `"${text.replace(/"/g, '""')}"`;
+    }
+
+    return text;
+}
+
+function employeesExportFilename(extension) {
+    const stamp = new Date().toISOString().slice(0, 10);
+
+    return `employees-${stamp}.${extension}`;
+}
+
+/**
+ * Walk every cursor page so export includes all rows (not only what is loaded in the table).
+ */
+async function fetchAllEmployeesForExport(filters) {
+    const all = [];
+    let cursor = null;
+    let hasMore = true;
+
+    while (hasMore) {
+        const page = await fetchEmployeesPage(cursor, {
+            ...(filters || {}),
+            perPage: 100,
+        });
+
+        if (page.data.length) {
+            all.push(...page.data);
+        }
+
+        cursor = page.nextCursor;
+        hasMore = page.hasMore;
+
+        if (!page.data.length && !hasMore) {
+            break;
+        }
+    }
+
+    return all;
+}
+
+function downloadEmployeesCsv(rows) {
+    const headerLine = EMPLOYEE_EXPORT_COLUMNS.map((col) => escapeCsvField(col.label)).join(',');
+    const dataLines = rows.map((row) =>
+        EMPLOYEE_EXPORT_COLUMNS.map((col) =>
+            escapeCsvField(employeeExportPlainValue(row, col.key))
+        ).join(',')
+    );
+
+    const csv = `\uFEFF${[headerLine, ...dataLines].join('\r\n')}`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = employeesExportFilename('csv');
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+function downloadEmployeesPdf(rows) {
+    const tableHeader = EMPLOYEE_EXPORT_COLUMNS.map((col) => ({
+        text: col.label,
+        style: 'tableHeader',
+        bold: true,
+    }));
+
+    const tableBody = rows.map((row) =>
+        EMPLOYEE_EXPORT_COLUMNS.map((col) => employeeExportPlainValue(row, col.key))
+    );
+
+    const docDefinition = {
+        pageOrientation: 'landscape',
+        pageSize: 'A4',
+        content: [
+            { text: 'Employees', style: 'title' },
+            {
+                text: `Exported on ${new Date().toLocaleString()} — ${rows.length} record(s)`,
+                style: 'subtitle',
+                margin: [0, 0, 0, 10],
+            },
+            {
+                table: {
+                    headerRows: 1,
+                    widths: ['auto', '*', 'auto', 'auto', 'auto', '*', '*', 'auto'],
+                    body: [tableHeader, ...tableBody],
+                },
+                layout: 'lightHorizontalLines',
+            },
+        ],
+        styles: {
+            title: { fontSize: 14, bold: true },
+            subtitle: { fontSize: 9, color: '#555555' },
+            tableHeader: { fontSize: 8, fillColor: '#1e2b6e', color: '#ffffff' },
+        },
+        defaultStyle: { fontSize: 8 },
+    };
+
+    pdfMake.createPdf(docDefinition).download(employeesExportFilename('pdf'));
+}
+
+async function exportEmployees(format) {
+    const csvBtn = document.getElementById('btn-export-csv');
+    const pdfBtn = document.getElementById('btn-export-pdf');
+    const buttons = [csvBtn, pdfBtn].filter(Boolean);
+
+    buttons.forEach((btn) => {
+        btn.disabled = true;
+    });
+
+    try {
+        if (typeof showToast === 'function') {
+            showToast('info', 'Export', 'Preparing file…');
+        }
+
+        const rows = await fetchAllEmployeesForExport({ search: employeesSearchTerm });
+
+        if (!rows.length) {
+            if (typeof showToast === 'function') {
+                showToast('info', 'Export', 'No employees to export.');
+            }
+            return;
+        }
+
+        if (format === 'csv') {
+            downloadEmployeesCsv(rows);
+        } else {
+            downloadEmployeesPdf(rows);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast('success', 'Export', `Downloaded ${rows.length} employee(s) as ${format.toUpperCase()}.`);
+        }
+    } catch (error) {
+        console.error('Employee export failed', error);
+        if (typeof showToast === 'function') {
+            showToast('error', 'Export', error.message || 'Could not export employees.');
+        }
+    } finally {
+        buttons.forEach((btn) => {
+            btn.disabled = false;
+        });
+    }
 }
 
 async function initEmployeesDataTable() {
@@ -814,20 +991,6 @@ async function initEmployeesDataTable() {
             }
         ],
         dom: 'rt<"dt-custom-footer"i>',
-        buttons: [
-            {
-                extend: 'csvHtml5',
-                text: 'Export CSV',
-                className: 'dt-btn-csv',
-            },
-            {
-                extend: 'pdfHtml5',
-                text: 'Export PDF',
-                className: 'dt-btn-pdf',
-                orientation: 'landscape',
-                pageSize: 'A4',
-            }
-        ],
         ordering: true,
         paging: false,
         language: {
@@ -982,15 +1145,15 @@ async function initEmployeesDataTable() {
 
     const csvBtn = document.getElementById('btn-export-csv');
     if (csvBtn) {
-        csvBtn.addEventListener('click', function () {
-            table.button('.dt-btn-csv').trigger();
+        csvBtn.addEventListener('click', () => {
+            exportEmployees('csv');
         });
     }
 
     const pdfBtn = document.getElementById('btn-export-pdf');
     if (pdfBtn) {
-        pdfBtn.addEventListener('click', function () {
-            table.button('.dt-btn-pdf').trigger();
+        pdfBtn.addEventListener('click', () => {
+            exportEmployees('pdf');
         });
     }
 
